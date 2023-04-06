@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Form</title>
+    <style>
+      form {
+        text-align: center;
+      }
+      button[type="submit"] {
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <form action="/submit" method="post">
+      <h1>Submit a Query</h1>
+      <textarea id="message" name="message" rows="10" cols="50" required></textarea><br><br>
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>
