@@ -1,11 +1,15 @@
 # Deploying sample chatbot app in cloud run
  
 
-### 1. Export Proxies
+### 1. Export Proxies and start Podman
 
 ```Text
+export http_proxy=http://internet.ford.com:83  
+export https_proxy=http://internet.ford.com:83
+
 podman machine init
 podman machine start
+
 ```
 
 ### 2. Build an image - Need to disconnect from VPN
