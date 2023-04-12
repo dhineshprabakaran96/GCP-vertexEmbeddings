@@ -7,10 +7,14 @@
 export http_proxy=http://internet.ford.com:83  
 export https_proxy=http://internet.ford.com:83
 
+
 podman machine init
 podman machine start
 
 ```
+
+### If you get "command not found: podman," install podman. - https://podman.io/getting-started/installation
+
 
 ### 2. Build an image - Need to disconnect from VPN
 
