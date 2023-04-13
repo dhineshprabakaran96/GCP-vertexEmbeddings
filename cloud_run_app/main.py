@@ -1,16 +1,15 @@
 from flask import Flask, render_template, request
-import os
 import numpy as np
 import openai
 import pandas as pd
-# import tiktoken
-# from transformers import GPT2TokenizerFast
-# from transformers import cached_path
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_version = '2022-12-01'
+openai.api_base = 'https://ito-openai-instance.openai.azure.com/' # Please add your endpoint here
+openai.api_type = 'azure'
+openai.api_key = '113a243053474a77a78d7fd79fc6ae39'  # Azure Key-1
 
-COMPLETIONS_MODEL = "text-davinci-003"
-EMBEDDING_MODEL = "text-embedding-ada-002"
+COMPLETIONS_MODEL = "deployment-851fdef5eaf64d8191f5d5270cadda4d" # ext-davinci-003
+EMBEDDING_MODEL = "deployment-d38e46e6d5924a478a5c744a409a48d4" # text-embedding-ada-002
 
 
 def load_embeddings(filename):
@@ -27,7 +26,7 @@ def load_embeddings(filename):
 
 def get_embedding(text):
     result = openai.Embedding.create(
-      model=EMBEDDING_MODEL,
+      deployment_id=EMBEDDING_MODEL,
       input=text
     )
     return result["data"][0]["embedding"]
@@ -79,7 +78,7 @@ def construct_prompt(question, context_embeddings, df):
     return header + "".join(chosen_sections) + "\n\n Q: " + question + "\n A:"
 
 
-df = pd.read_csv('./input/cloudrun.csv')
+df = pd.read_csv('./input/results.csv')
 df = df.set_index(["title", "heading"])
 
 document_embeddings = load_embeddings("document_embedding.csv")
@@ -88,9 +87,6 @@ document_embeddings = load_embeddings("document_embedding.csv")
 MAX_SECTION_LEN = 500
 SEPARATOR = "\n* "
 # ENCODING = "gpt2"  # encoding for text-davinci-003
-
-# tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
-
 # encoding = tiktoken.get_encoding(ENCODING)
 # separator_len = len(tokenizer.encode(SEPARATOR))
 separator_len = 3
@@ -106,6 +102,7 @@ def answer_query_with_context(query,df,document_embeddings,show_prompt):
         print(prompt)
 
     response = openai.Completion.create(
+                deployment_id=COMPLETIONS_MODEL,
                 prompt=prompt,
                 **COMPLETIONS_API_PARAMS
             )
@@ -113,10 +110,8 @@ def answer_query_with_context(query,df,document_embeddings,show_prompt):
     return response["choices"][0]["text"].strip(" \n")
 
 COMPLETIONS_API_PARAMS = {
-    # We use temperature of 0.0 because it gives the most predictable, factual answer.
     "temperature": 0.0,
     "max_tokens": 300,
-    "model": COMPLETIONS_MODEL,
 }
 
 app = Flask(__name__)
@@ -130,8 +125,8 @@ def submit():
     message = request.form['message']
     # do something with the form data
     response = answer_query_with_context(message, df, document_embeddings, False)
-    # print(response)
-    return f"{response}"
+
+    return response
 
 if __name__ == "__main__":
     PORT = 8080
