@@ -3,10 +3,15 @@ import numpy as np
 import openai
 import pandas as pd
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# openai.api_key = os.getenv("OPENAI_API_KEY")
 
-COMPLETIONS_MODEL = "text-davinci-003"
-EMBEDDING_MODEL = "text-embedding-ada-002"
+openai.api_version = '2022-12-01'
+openai.api_base = 'https://ito-openai-instance.openai.azure.com/' # Please add your endpoint here
+openai.api_type = 'azure'
+openai.api_key = os.getenv("OPENAI_API_KEY")  # Please add your api key here
+
+COMPLETIONS_MODEL = "deployment-851fdef5eaf64d8191f5d5270cadda4d"
+EMBEDDING_MODEL = "deployment-d38e46e6d5924a478a5c744a409a48d4"
 
 def print_output(document_embeddings):
   document_keys = list(document_embeddings.keys())
@@ -29,7 +34,7 @@ def print_output(document_embeddings):
 
 def get_embedding(text):
     result = openai.Embedding.create(
-      model=EMBEDDING_MODEL,
+      deployment_id=EMBEDDING_MODEL,
       input=text
     )
     return result["data"][0]["embedding"]
@@ -41,9 +46,9 @@ def compute_doc_embeddings(df):
         idx: get_embedding(r.content) for idx, r in df.iterrows()
     }
 
-df = pd.read_csv('<path_to_csv_file>.csv')
+df = pd.read_csv('./input/results.csv')
 df = df.set_index(["title", "heading"])
 
 document_embeddings = compute_doc_embeddings(df)
 
-# print_output(document_embeddings)
+print_output(document_embeddings)
