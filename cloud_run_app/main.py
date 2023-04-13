@@ -6,7 +6,7 @@ import pandas as pd
 openai.api_version = '2022-12-01'
 openai.api_base = 'https://ito-openai-instance.openai.azure.com/' # Please add your endpoint here
 openai.api_type = 'azure'
-openai.api_key = '113a243053474a77a78d7fd79fc6ae39'  # Azure Key-1
+openai.api_key = os.getenv("OPENAI_API_KEY")  # Azure Key-1
 
 COMPLETIONS_MODEL = "deployment-851fdef5eaf64d8191f5d5270cadda4d" # ext-davinci-003
 EMBEDDING_MODEL = "deployment-d38e46e6d5924a478a5c744a409a48d4" # text-embedding-ada-002
