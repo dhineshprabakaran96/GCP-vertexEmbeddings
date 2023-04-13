@@ -15,6 +15,7 @@ podman machine start
 
 ### If you get "command not found: podman," install podman. - https://podman.io/getting-started/installation
 
+### Clone this repo and build the image - git clone https://github.ford.com/cmsa/ITO-ChatGPT/tree/main/cloud_run_app 
 
 ### 2. Build an image - Need to disconnect from VPN
 
