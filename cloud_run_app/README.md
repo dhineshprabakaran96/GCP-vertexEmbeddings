@@ -22,6 +22,8 @@ podman machine start
 ```Text
 podman build -t <image_name> .  # Here dot is required
 ```
+### Tag the image with the below command podman tag localhost/<imagename>:latest us-central1-docker.pkg.dev/<projectid>/ford-container-images/<imagename>:1.0
+### Example: podman tag localhost/chatgptito:latest us-central1-docker.pkg.dev/ford-4360b648e7193d62719765c7/ford-container-images/chatgptito:1.0
 
 ### 2. Check whether the images is running in local
 
