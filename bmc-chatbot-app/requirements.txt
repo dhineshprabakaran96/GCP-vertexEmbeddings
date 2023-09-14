@@ -1,0 +1,9 @@
+Flask
+gunicorn==20.1.0
+google-cloud
+google-auth
+google-cloud-storage
+google-api-python-client
+oauth2client
+pandas
+db-dtypes
