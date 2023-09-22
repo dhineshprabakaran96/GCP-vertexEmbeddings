@@ -1,8 +1,33 @@
+import vertexai
+from vertexai.preview.language_models import TextEmbeddingModel
+from google.cloud import storage
+from google.cloud import bigquery
+from flask import Flask, request, jsonify
+from bs4 import BeautifulSoup
+import pandas as pd
 import requests
 import os
 import json
-from google.cloud import storage
-from flask import Flask, request, jsonify
+import math
+import re
+
+project_id = 'ford-4360b648e7193d62719765c7'
+matching_engine_projectid = "ford-071510988cc8f3cc7b39d2d8"
+client = bigquery.Client(project=project_id)
+EMBEDDING_MODEL = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
+
+schema = [
+    bigquery.SchemaField('id', 'INTEGER'),
+    bigquery.SchemaField('article_title', 'STRING'),
+    bigquery.SchemaField('answer', 'STRING'),
+    bigquery.SchemaField('kba_id', 'STRING')
+]
+
+# Create the table if it does not exist
+table_name = 'bmc-data-test' 
+table_ref = client.dataset('chatgpt').table(table_name)
+table = bigquery.Table(table_ref, schema=schema)
+table = client.create_table(table, exists_ok=True)
 
 app = Flask(__name__)
 
@@ -22,7 +47,7 @@ def handle_proxies(cmd):
     os.environ['https_proxy']='http://internet.ford.com:83'
 
 # Function to get access token
-def print_access_token():
+def get_access_token():
   username = os.environ['username']
   password = os.environ['password']
   access_token = ""
@@ -60,18 +85,168 @@ def store_bmc_data_gcs(data):
   blob.upload_from_string(json.dumps(data))
   return blob.public_url
 
+# Get the last ID in the table
+def get_last_id():
+  last_id = 0
+  num_rows = 0
+
+  handle_proxies("UNSET")
+  table = client.query(f'SELECT COUNT(*) AS num_rows FROM `{table_ref}`').result()
+  for item in table:
+    num_rows = item[0]
+
+  # print(num_rows)
+  if num_rows == 0:
+    print('The table is empty')
+  else:
+    print(f'The table has {num_rows} rows')
+    query = f'SELECT MAX(id) FROM `{table_ref}`'
+    table1 = client.query(query).result()
+    for item in table1:
+      last_id = item[0]
+
+  return int(last_id)
+
+# Insert data into the table
+def insert_data(last_id, article_title, answer, kba_id):
+
+  handle_proxies("UNSET")
+  row_to_insert = (last_id, article_title, answer, kba_id)
+  errors = client.insert_rows(table, [row_to_insert])
+  if errors:
+    print(f'Encountered errors while inserting rows: {errors}')
+
+  print("Successfully inserted data with ID: ", last_id)
+
+
+def generate_answer(input_str):
+  soup = BeautifulSoup(input_str, 'html.parser')
+
+  output_str = ""
+  for li in soup.find_all('li'):
+      text = li.text.strip()
+      link = li.find('a')
+      if link is not None:
+          href = link.get('href')
+          text += f" ({href})"
+      output_str += text + "\n\n"
+
+  return output_str.strip().replace("\n", " ")
+
+def generate_answer_2(raw_data):
+  output_str = ""
+  skip = 0
+  for i in range(len(raw_data)):
+      if raw_data[i] == '<':
+          skip += 1
+      elif raw_data[i] == '>':
+          skip -= 1
+      elif skip == 0:
+          output_str += raw_data[i]
+
+  return output_str.strip().replace("&nbsp;", " ").replace("\n", " ").replace("&#39;", "'")
+
+# Upload data to bigquery
+def bq_upload(data):
+  last_id = get_last_id() 
+  
+  for item in data['entries'][:10]:
+
+    kba_id = item["values"]["DocID"]
+    article_title = item["values"]["ArticleTitle"]
+    answer = ""
+    try: 
+      soup = BeautifulSoup(item["values"]["RKMTemplateAnswer"], 'html.parser')
+
+      if len(soup.find_all('li'))>0:
+        answer = generate_answer(item["values"]["RKMTemplateAnswer"])
+      else:
+        answer = generate_answer_2(item["values"]["RKMTemplateAnswer"])
+
+      answer = re.sub(r'\(javascript:.*?\}\)', '', answer) #Remove javascript substrings
+    
+    except TypeError:
+      print("some error in - ", kba_id)
+
+    if len(answer)>0:
+      # Insert into Bigquery
+      last_id = last_id + 1
+      insert_data(str(last_id), article_title, answer, kba_id)
+
+def get_embedding(questions):
+
+  handle_proxies("UNSET")
+  vertexai.init(project = project_id, location = "us-central1")
+  # handle_proxies("SET")
+
+  emb_results = EMBEDDING_MODEL.get_embeddings(questions)
+  result = []
+  for embedding in emb_results:
+    result.append(embedding.values)
+
+  return result
+
+# Create Embeddings and store it to GCS
+def create_emb():
+  handle_proxies("UNSET")
+  query = f"SELECT * FROM `{table_ref}`"
+  rows = client.query(query).result()
+  df = rows.to_dataframe()
+
+  ids = df.id.tolist()
+  answer = df.answer.tolist()
+  title = df.article_title.tolist()
+
+  for i in range(0, len(answer)):
+    answer[i] = "Topic: " + title[i] + "\n\n" + answer[i]
+
+  batch_size = 5  
+
+  for i in range(0, len(ids), batch_size):
+    nth_batch = i+batch_size
+    if i+batch_size > len(ids):
+      nth_batch = len(ids)-1
+
+    id_batch = ids[i:nth_batch]
+    emb_batch = answer[i:nth_batch]
+    print("Creating embeddings : ", math.ceil((i/len(ids))*100) , "%")
+    emb_list = get_embedding(emb_batch) 
+
+    with open("/tmp/embeddings.json", 'a') as f1:
+      embeddings_formatted = []
+      for j in range(0, len(emb_list)):
+        embeddings_formatted.append(json.dumps( 
+          {
+            "id" : str(id_batch[j]),
+            "embedding" : emb_list[j]
+          }
+        ) + "\n")
+      f1.writelines(embeddings_formatted)
+    
+  # Store Embeddings in GCS
+  handle_proxies("SET")
+  client1 = storage.Client(project=matching_engine_projectid)
+  bucket = client1.bucket('bmc-bot-bucket')
+  blob = bucket.blob('bmc-embeddings/embeddings.json')
+  blob.upload_from_filename('/tmp/embeddings.json')
+
+  print("Embeddings created")
+
 
 # Handle incoming POST request
 @app.route('/webhook', methods=['POST'])
 def handle_webhook():
   gcs_location = ""
-  access_token, status_code = print_access_token()
+  access_token, status_code = get_access_token()
 
   if status_code == 200:
     data, status_code = get_bmc_data(access_token)
     print("Data retrieved from BMC with statuscode", status_code)
     if status_code == 200:
       gcs_location = store_bmc_data_gcs(data)
+
+    bq_upload(data)
+    create_emb()
   else:
     print("Some error with statuscode ", status_code)
     return "Some error with statuscode "+ status_code

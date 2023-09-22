@@ -3,7 +3,14 @@ gunicorn==20.1.0
 google-cloud
 google-auth
 google-cloud-storage
+google-cloud-bigquery
+google-cloud-aiplatform
 google-api-python-client
 oauth2client
 pandas
 db-dtypes
+beautifulsoup4==4.12.2
+vertexai
+grpcio
+grpcio-status
+grpcio-tools
