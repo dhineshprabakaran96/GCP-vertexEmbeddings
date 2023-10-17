@@ -1,0 +1,16 @@
+Flask
+gunicorn==20.1.0
+google-cloud
+google-auth
+google-cloud-storage
+google-api-python-client
+google-cloud-logging
+google-cloud-aiplatform
+google-cloud-bigquery
+vertexai
+oauth2client
+grpcio
+grpcio-status
+grpcio-tools
+pandas
+db-dtypes
