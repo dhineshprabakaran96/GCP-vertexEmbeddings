@@ -257,10 +257,3 @@ if __name__ == '__main__':
   PORT = 8008
   app.run(debug=True, host="0.0.0.0", port=PORT)
 
-
-  
-
-access_token, status_code = get_access_token() # Task 0 : Get BMC access token
-data, status_code = get_bmc_data(access_token)  # Task 1 : Get BMC data
-bq_upload(data) # Task 2 : upload data to bq
-create_emb() # Task 3 : Create Embeddings and store in local 
