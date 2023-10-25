@@ -24,7 +24,7 @@ schema = [
 ]
 
 # Create the table if it does not exist
-table_name = 'bmc-data-test' 
+table_name = 'bmc-data-test'    # <------ Change bucket name
 table_ref = client.dataset('chatgpt').table(table_name)
 table = bigquery.Table(table_ref, schema=schema)
 table = client.create_table(table, exists_ok=True)
@@ -74,16 +74,6 @@ def get_bmc_data(access_token):
   response = requests.request("GET", DATA_URL, headers=headers, data=payload)
   return response.json(), response.status_code
 
-# Function to store the response.json in GCS bucket
-def store_bmc_data_gcs(data):
-  bucket_name = 'bmc-chatbot-bucket'
-  blob_name = 'response.json'
-  handle_proxies("UNSET")
-  client = storage.Client()
-  bucket = client.get_bucket(bucket_name)
-  blob = bucket.blob(blob_name)
-  blob.upload_from_string(json.dumps(data))
-  return blob.public_url
 
 # Get the last ID in the table
 def get_last_id():
@@ -222,45 +212,18 @@ def create_emb():
           }
         ) + "\n")
       f1.writelines(embeddings_formatted)
-    
-  # Store Embeddings in GCS
-  # handle_proxies("SET")
-  # client1 = storage.Client(project=matching_engine_projectid)
-  # bucket = client1.bucket('bmc-bot-bucket')
-  # blob = bucket.blob('bmc-embeddings/embeddings.json')
-  # blob.upload_from_filename('/tmp/embeddings.json')
 
   print("Embeddings created")
 
-
-# Handle incoming POST request
-@app.route('/webhook', methods=['POST'])
-def handle_webhook():
-  gcs_location = ""
-  access_token, status_code = get_access_token()
-
-  if status_code == 200:
-    data, status_code = get_bmc_data(access_token)  # Task 1 : Get BMC data
-    print("Data retrieved from BMC with statuscode", status_code)
-    # if status_code == 200:
-      # gcs_location = store_bmc_data_gcs(data)
-
-    bq_upload(data) # Task 2 : upload data to bq
-    create_emb() # Task 3 : Create Embeddings
-  else:
-    print("Some error with statuscode ", status_code)
-    return "Some error with statuscode "+ status_code
-
-  return "Data uploaded"
-
-if __name__ == '__main__':
-  PORT = 8008
-  app.run(debug=True, host="0.0.0.0", port=PORT)
-
-
-  
 
 access_token, status_code = get_access_token() # Task 0 : Get BMC access token
 data, status_code = get_bmc_data(access_token)  # Task 1 : Get BMC data
 bq_upload(data) # Task 2 : upload data to bq
 create_emb() # Task 3 : Create Embeddings and store in local 
+
+
+
+# gcloud auth application-default login
+# Set env variables : "username" and "password" 
+# Change Table name
+# Upload Embeddings.json to gcs
