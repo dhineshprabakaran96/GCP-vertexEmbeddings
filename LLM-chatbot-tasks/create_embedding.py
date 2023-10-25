@@ -24,7 +24,7 @@ schema = [
 ]
 
 # Create the table if it does not exist
-table_name = 'bmc-data-test'    # <------ Change bucket name
+table_name = 'aharshit-test'    # <------ Change bucket name
 table_ref = client.dataset('chatgpt').table(table_name)
 table = bigquery.Table(table_ref, schema=schema)
 table = client.create_table(table, exists_ok=True)
@@ -140,7 +140,7 @@ def generate_answer_2(raw_data):
 def bq_upload(data):
   last_id = get_last_id() 
   
-  for item in data['entries'][:]:
+  for item in data['entries'][:10]:
 
     kba_id = item["values"]["DocID"]
     article_title = item["values"]["ArticleTitle"]
@@ -202,7 +202,7 @@ def create_emb():
     print("Creating embeddings : ", math.ceil((i/len(ids))*100) , "%")
     emb_list = get_embedding(emb_batch) 
 
-    with open("/tmp/embeddings.json", 'a') as f1:
+    with open("embeddings.json", 'a') as f1:
       embeddings_formatted = []
       for j in range(0, len(emb_list)):
         embeddings_formatted.append(json.dumps( 
