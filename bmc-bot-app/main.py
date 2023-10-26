@@ -23,7 +23,7 @@ bot_email = "chatBlueFord@webex.bot"
 PROJECT_ID = "ford-4360b648e7193d62719765c7"
 PROJECT_ID_VAI = "ford-071510988cc8f3cc7b39d2d8"
 
-bmc_bq_data_table = "bmc-kba-data-prod"
+bmc_bq_data_table = "updated_article_02"
 feedback_bq_table = "bmc-feedback-data"
 
 EMBEDDING_MODEL = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
@@ -35,8 +35,6 @@ PARAMETERS = {
   "top_p": 0.8,
   "top_k": 40
 }
-
-MAX_INPUT_TOKENS = 4000
 
 # Webex Card boilerplate
 CARD_PAYLOAD = {
@@ -179,12 +177,8 @@ Context:-\n
 """
 
   context = ""
-  tokens_till_now = 0
   for row in rows:
-    if tokens_till_now > MAX_INPUT_TOKENS:
-      break
     context += f"*Topic: {row[2]}\nID: {row[1]}\n{row[0]}\n\n"
-    tokens_till_now += row[3]
 
   examples = """input: What is Tensorflow?
 output: {\"answer\" : \"NA\", \"id\": \"\", \"topic\": \"\"}
@@ -255,7 +249,7 @@ def process_message(question):
   stub = match_service_pb2_grpc.MatchServiceStub(channel)
 
   request_ = match_service_pb2.MatchRequest()
-  request_.deployed_index_id = "bmc_kba_prod_endpoint_2"
+  request_.deployed_index_id = "bmc_kba_prod_endpoint_test_updated"
 
   for i in test_embeddings:
     request_.float_val.append(i) 
@@ -272,11 +266,11 @@ def process_message(question):
   # print(id_list)
   # print(id_distance)
 
-  suggested_id_list = "('" + "', '".join(id_list[:5]) + "')"
+  suggested_id_list = "(" + ", ".join(id_list[:5]) + ")"
 
   handle_proxies("UNSET")
 
-  bq_query = f"SELECT answer,kba_id,article_title,tokens FROM `{PROJECT_ID}.chatgpt.{bmc_bq_data_table}` where id IN {suggested_id_list}"  # 3. Make query to bq table with top ID
+  bq_query = f"SELECT answer,kba_id,article_title FROM `{PROJECT_ID}.chatgpt.{bmc_bq_data_table}` where id IN {suggested_id_list}"  # 3. Make query to bq table with top ID
   # print(bq_query)
   
   bq_client = bigquery.Client(project = PROJECT_ID)
