@@ -210,3 +210,12 @@ if __name__ == '__main__':
   PORT = 8085
   app.run(debug=True, host="0.0.0.0", port=PORT)
 
+
+
+# gcloud auth application-default login    # If running in local
+
+# export BOT_ACCESS_TOKEN=<PASTE BOT ACCESS TOKEN>
+# export webhook_secret='<SECRET>'
+# export ORG_ID=<CISCO ORG ID>
+# export GCLOUD_ACCESS_TOKEN=<gcloud auth print-access-token>
+
