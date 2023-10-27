@@ -14,7 +14,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 app = Flask(__name__)
 
 BOT_ACCESS_TOKEN = os.environ["BOT_ACCESS_TOKEN"]
-bot_email = "chatBlueFord@webex.bot"
+bot_email = "bmc-genapp@webex.bot"
 
 PROJECT_ID = "ford-4360b648e7193d62719765c7"
 
@@ -40,19 +40,6 @@ CARD_PAYLOAD = {
             "size": "Default",
             "weight": "Default",
             "color": "Default"
-        },
-        {
-          "type": "Container"
-        },
-        {
-          "type": "TextBlock",
-          "text": "Here are some suggested links:",
-          "horizontalAlignment": "Left",
-          "wrap": True,
-          "fontType": "Default",
-          "size": "Default",
-          "weight": "Default",
-          "color": "Default"
         }
     ],
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -96,8 +83,8 @@ def get_message(message_id):
 # Function to process incoming messages
 def process_message(question):
 
-  url = "https://discoveryengine.googleapis.com/v1alpha/projects/655678175973/locations/global/collections/default_collection/dataStores/top22bmcpdf_1696858258919/conversations/-:converse"
-
+  # url = "https://discoveryengine.googleapis.com/v1alpha/projects/655678175973/locations/global/collections/default_collection/dataStores/top22bmcpdf_1696858258919/conversations/-:converse"
+  url = "https://discoveryengine.googleapis.com/v1alpha/projects/655678175973/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/-:converse"
   payload = json.dumps({
     "query": {
       "input": question
@@ -117,39 +104,11 @@ def process_message(question):
 
   data = json.loads(response.text)
 
-  reply = data['reply']['reply']
-
-  searchResults = []
-  for item in data['searchResults']:
-    searchResults.append(item['document']['derivedStructData']['link'].split('/')[-1].replace('.pdf', ''))
-  
-  # print(searchResults)
-  return reply, searchResults[:3]
+  return data['reply']['reply']
 
 # Define a function to send messages to the Webex Teams API
-def send_message(room_id, response_text, suggested_list):
-  # print(response_json)
+def send_message(room_id, response_text):
 
-  CARD_PAYLOAD['body'] = CARD_PAYLOAD['body'][:4]
-
-  suggested_id_list = "('" + "', '".join(suggested_list) + "')"
-  bq_query = f"SELECT kba_id,article_title FROM `{PROJECT_ID}.chatgpt.bmc-kba-data-prod` where kba_id IN {suggested_id_list}"  # For getting suggestions
-  bq_client = bigquery.Client(project = PROJECT_ID)
-  rows = bq_client.query(bq_query).result().to_dataframe().values.tolist()  #list
-  for item in rows:
-    CARD_PAYLOAD["body"].append({
-          "type": "ActionSet",
-          "actions": [
-              {
-                  "type": "Action.OpenUrl",
-                  "title": item[1],
-                  "url": "https://ford-smartit.onbmc.com/smartit/app/#/knowledge/" + item[0]
-              }
-          ],
-          "horizontalAlignment": "Left",
-          "spacing": "Small"
-      })
-  # print(response_text)
   CARD_PAYLOAD['body'][1]['text'] = response_text
   
   # Set up the API request headers and payload
@@ -208,16 +167,15 @@ def index():
   }
   return jsonify(res)
 
-@app.route('/webhook', methods=['POST'])
+@app.route('/astrowebhook', methods=['POST'])
 def handle_webhook():
 
   validation, validation_msg = validate_request(request.get_data(), request.headers.get('X-Spark-Signature'))
-  # print(validation_msg)
 
   if validation == True : ##<----   *****
 
     data = json.loads(request.data)
-    # print(str(data))
+    # logging.info(json.loads(request.data))
 
     message_id = data['data']['id']
     room_id = data['data']['roomId']
@@ -239,9 +197,9 @@ def handle_webhook():
           return "OK"
 
       # Process the incoming message
-      response_text, suggested_list = process_message(message_text)
+      response_text = process_message(message_text)
 
-      send_message(room_id, response_text, suggested_list)
+      send_message(room_id, response_text)
   
   else:
     return "Authentication failed!"
@@ -251,15 +209,4 @@ def handle_webhook():
 if __name__ == '__main__':
   PORT = 8085
   app.run(debug=True, host="0.0.0.0", port=PORT)
-
-
-
-
-# gcloud auth application-default login    # If running in local
-
-# export BOT_ACCESS_TOKEN=<PASTE BOT ACCESS TOKEN>
-# export webhook_secret='<SECRET>'
-# export ORG_ID=<CISCO ORG ID>
-# export GCLOUD_ACCESS_TOKEN=<gcloud auth print-access-token>
-
 
