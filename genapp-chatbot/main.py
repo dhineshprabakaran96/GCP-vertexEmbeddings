@@ -40,6 +40,19 @@ CARD_PAYLOAD = {
             "size": "Default",
             "weight": "Default",
             "color": "Default"
+        },
+        {
+          "type": "Container"
+        },
+        {
+          "type": "TextBlock",
+          "text": "Here are some suggested links:",
+          "horizontalAlignment": "Left",
+          "wrap": True,
+          "fontType": "Default",
+          "size": "Default",
+          "weight": "Default",
+          "color": "Default"
         }
     ],
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -83,8 +96,8 @@ def get_message(message_id):
 # Function to process incoming messages
 def process_message(question):
 
-  # url = "https://discoveryengine.googleapis.com/v1alpha/projects/655678175973/locations/global/collections/default_collection/dataStores/top22bmcpdf_1696858258919/conversations/-:converse"
   url = "https://discoveryengine.googleapis.com/v1alpha/projects/655678175973/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/-:converse"
+
   payload = json.dumps({
     "query": {
       "input": question
@@ -104,11 +117,35 @@ def process_message(question):
 
   data = json.loads(response.text)
 
-  return data['reply']['reply']
+  reply = data['reply']['reply']
+
+  searchResults = []
+  for item in data['searchResults']:
+    searchResults.append(item['document']['derivedStructData']['link'])
+  
+  # print(searchResults)
+  return reply, searchResults[:3]
 
 # Define a function to send messages to the Webex Teams API
-def send_message(room_id, response_text):
+def send_message(room_id, response_text, suggested_list):
+  # print(suggested_list)
 
+  CARD_PAYLOAD['body'] = CARD_PAYLOAD['body'][:4]
+
+  for item in suggested_list:
+    CARD_PAYLOAD["body"].append({
+          "type": "ActionSet",
+          "actions": [
+              {
+                  "type": "Action.OpenUrl",
+                  "title": item.split('/')[-1].replace('.pdf', ''),
+                  "url": "https://github.ford.com/cmsa/Astronomer/wiki/Astronomer--Platform-Architecture"  ## replace this URL for suggestion
+              }
+          ],
+          "horizontalAlignment": "Left",
+          "spacing": "Small"
+      })
+  # print(response_text)
   CARD_PAYLOAD['body'][1]['text'] = response_text
   
   # Set up the API request headers and payload
@@ -171,11 +208,12 @@ def index():
 def handle_webhook():
 
   validation, validation_msg = validate_request(request.get_data(), request.headers.get('X-Spark-Signature'))
+  # print(validation_msg)
 
-  if validation == True : ##<----   *****
+  if validation != True : ##<----   *****
 
     data = json.loads(request.data)
-    # logging.info(json.loads(request.data))
+    # print(str(data))
 
     message_id = data['data']['id']
     room_id = data['data']['roomId']
@@ -197,9 +235,9 @@ def handle_webhook():
           return "OK"
 
       # Process the incoming message
-      response_text = process_message(message_text)
+      response_text, suggested_list = process_message(message_text)
 
-      send_message(room_id, response_text)
+      send_message(room_id, response_text, suggested_list)
   
   else:
     return "Authentication failed!"
@@ -207,8 +245,9 @@ def handle_webhook():
   return "Message received"
 
 if __name__ == '__main__':
-  PORT = 8085
+  PORT = 6000
   app.run(debug=True, host="0.0.0.0", port=PORT)
+
 
 
 
