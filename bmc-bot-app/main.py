@@ -6,15 +6,18 @@ import grpc
 from google.cloud import bigquery
 from flask import Flask, request, jsonify
 from google.cloud import logging
-import logging as log
+import logging 
 import requests
 import json
 import hashlib
 import hmac
 import os
 import time
+import sys
 
 app = Flask(__name__)
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 # Set up global variables
 BOT_ACCESS_TOKEN = os.environ["BOT_ACCESS_TOKEN"]
@@ -135,9 +138,14 @@ def get_feedback(message_id, room_id):
 
   json_data = response.json()
 
+  # logging.info("feedback data")
+  # logging.info(json_data)
+
   query = f"""UPDATE `{PROJECT_ID}.chatgpt.{feedback_bq_table}` 
-SET feedback='{json_data['inputs']['feedback']}', feedback_timestamp='{json_data['created']}'
+SET feedback='{json_data['inputs']['feedback']}', feedback_timestamp='{json_data['created']}', feedback_comment='{json_data['inputs']['feedbackComment']}'
 WHERE session_id='{json_data['inputs']['sessionID']}'"""
+
+  logging.info(query) ## <----
 
   handle_proxies("UNSET")
   bigquery.Client(project = PROJECT_ID).query(query)
@@ -346,8 +354,9 @@ def send_message(room_id, response_json, suggested_list):
               "weight": "Default",
               "color": "Default"
           })
-      suggested_id_list = "('" + "', '".join(suggested_list) + "')"
+      suggested_id_list = "(" + ", ".join(suggested_list) + ")"
       bq_query = f"SELECT kba_id,article_title FROM `{PROJECT_ID}.chatgpt.{bmc_bq_data_table}` where id IN {suggested_id_list}"  # For getting suggestions
+      
       bq_client = bigquery.Client(project = PROJECT_ID)
       rows = bq_client.query(bq_query).result().to_dataframe().values.tolist()  #list
       for item in rows:
@@ -397,7 +406,7 @@ def send_message(room_id, response_json, suggested_list):
   })
   CARD_PAYLOAD["body"].append({
       "type": "TextBlock",
-      "text": "Are you satisfied with the repsonse?",
+      "text": "Are you satisfied with the response?",
       "horizontalAlignment": "Left",
       "spacing": "Large",
       "fontType": "Monospace",
@@ -425,6 +434,11 @@ def send_message(room_id, response_json, suggested_list):
       ],
       "placeholder": "Feedback",
       "style": "expanded"
+  })
+  CARD_PAYLOAD["body"].append({
+      "type": "Input.Text",
+      "id": "feedbackComment",
+      "placeholder": "Type your Feedback"
   })
   
   # Set up the API request headers and payload
