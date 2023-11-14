@@ -1,0 +1,371 @@
+Deploying...
+Creating Revision......................done
+Routing traffic.................................................................................................................................................................................done
+Done.
+Service [[1mwebex-bot-genapp[m] revision [[1mwebex-bot-genapp-00045-pfv[m] has been deployed and is serving [1m100[m percent of traffic.
+Service URL: [1mhttps://webex-bot-genapp-py5qtjsqtq-uc.a.run.app[m
+Deploying...
+Creating Revision.......................done
+Routing traffic.......................................................................................................................................................done
+Done.
+Service [[1mwebex-bot-genapp[m] revision [[1mwebex-bot-genapp-00002-8qp[m] has been deployed and is serving [1m100[m percent of traffic.
+Service URL: [1mhttps://webex-bot-genapp-py5qtjsqtq-uc.a.run.app[m
+Deploying...
+Creating Revision.......................done
+Routing traffic...................................................................................................................................................................................done
+Done.
+Service [[1mwebex-bot-genapp[m] revision [[1mwebex-bot-genapp-00003-x8w[m] has been deployed and is serving [1m100[m percent of traffic.
+Service URL: [1mhttps://webex-bot-genapp-py5qtjsqtq-uc.a.run.app[m
+Deploying...
+Creating Revision........................done
+Routing traffic.............................................................................................................................................................done
+Done.
+Service [[1mwebex-bot-genapp[m] revision [[1mwebex-bot-genapp-00004-l4g[m] has been deployed and is serving [1m100[m percent of traffic.
+Service URL: [1mhttps://webex-bot-genapp-py5qtjsqtq-uc.a.run.app[m
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.auth.print-access-token) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Reauthentication required.
+ERROR: (gcloud.run.services.update) There was a problem refreshing your current auth tokens: Reauthentication failed. Please run `gcloud auth login` to complete reauthentication with SAML.
+Please run:
+
+  $ gcloud auth login
+
+to obtain new credentials.
+
+If you have already logged in with a different account, run:
+
+  $ gcloud config set account ACCOUNT
+
+to select an already authenticated account to use.
+Deploying...
+Creating Revision......................done
+Routing traffic....failed
+Deployment failed
+ERROR: (gcloud.run.services.update) Revision 'webex-bot-genapp-00006-vmc' is not ready and cannot serve traffic. Image 'us-central1-docker.pkg.dev/ford-4360b648e7193d62719765c7/ford-container-images/genapp-bot:4.0' not found.
+Deploying...
+Creating Revision.......................done
+Routing traffic............................................................................................................................done
+Done.
+Service [[1mwebex-bot-genapp[m] revision [[1mwebex-bot-genapp-00009-8mg[m] has been deployed and is serving [1m100[m percent of traffic.
+Service URL: [1mhttps://webex-bot-genapp-py5qtjsqtq-uc.a.run.app[m
+Deploying...
+Creating Revision......................done
+Routing traffic............................................................................................................................done
+Done.
+Service [[1mwebex-bot-genapp[m] revision [[1mwebex-bot-genapp-00010-4wc[m] has been deployed and is serving [1m100[m percent of traffic.
+Service URL: [1mhttps://webex-bot-genapp-py5qtjsqtq-uc.a.run.app[m
+Deploying...
+Creating Revision.......................done
+Routing traffic...........................................................................................................................done
+Done.
+Service [[1mwebex-bot-genapp[m] revision [[1mwebex-bot-genapp-00011-trv[m] has been deployed and is serving [1m100[m percent of traffic.
+Service URL: [1mhttps://webex-bot-genapp-py5qtjsqtq-uc.a.run.app[m
+Deploying...
+Creating Revision.........................done
+Routing traffic.......................................................................................................................................done
+Done.
+Service [[1mwebex-bot-genapp[m] revision [[1mwebex-bot-genapp-00012-q6n[m] has been deployed and is serving [1m100[m percent of traffic.
+Service URL: [1mhttps://webex-bot-genapp-py5qtjsqtq-uc.a.run.app[m
+WARNING: This command is using service account impersonation. All API calls will be executed as [sa-cmsademo1-run-s@ford-c7ff84dd12dcb8181799bfe1.iam.gserviceaccount.com].
+WARNING: This command is using service account impersonation. All API calls will be executed as [sa-cmsademo1-run-s@ford-c7ff84dd12dcb8181799bfe1.iam.gserviceaccount.com].
+WARNING: This command is using service account impersonation. All API calls will be executed as [sa-cmsademo1-run-s@ford-c7ff84dd12dcb8181799bfe1.iam.gserviceaccount.com].
+WARNING: This command is using service account impersonation. All API calls will be executed as [sa-cmsademo1-run-s@ford-c7ff84dd12dcb8181799bfe1.iam.gserviceaccount.com].
+WARNING: This command is using service account impersonation. All API calls will be executed as [sa-cmsademo1-run-s@ford-c7ff84dd12dcb8181799bfe1.iam.gserviceaccount.com].
+ERROR: (gcloud.run.services.update) PERMISSION_DENIED: Permission 'run.services.get' denied on resource 'namespaces/ford-4360b648e7193d62719765c7/services/webex-bot-genapp' (or resource may not exist).
