@@ -1,0 +1,18 @@
+Request:
+{
+
+    "question": "What are some best practices for designing and implementing alert rules in Astronomer Airflow?",
+    "debug": true
+}
+
+
+Response:
+{
+  "links": {
+      "Airflow Notifications & Alerting — Astronomer": "https://docs.gcp.ford.com/docs/",
+      "Astronomer Best Practices Suggested by Astronomer Support — cmsa:Astronomer Wiki": "https://docs.gcp.ford.com/docs/",
+      "Starting with Astronomer — Astronomer": "https://docs.gcp.ford.com/docs/"
+  },
+  "question": "What are some best practices for designing and implementing alert rules in Astronomer Airflow?",
+  "response": "The best practices for developing and executing alert rules in Astronomer Airflow include:\n\n* Using the BaseOperator that all Airflow Operators inherit from. This allows you to configure each task individually as needed by turning off email notifications by default at the DAG level.\n* Using Astronomer Astro Runtime images. Make sure the image tag version matches the runtime version specified in your deployment. Custom images will not be supported.\n* Using the KubernetesExecutor for Airflow deployments unless CeleryExecutor is required.\n* Tearing down development deployments when not in use."
+} 

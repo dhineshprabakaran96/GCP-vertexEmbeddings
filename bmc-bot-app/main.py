@@ -239,6 +239,7 @@ def get_suggestions(res, id_list, id_distance):
 
 # Function to process incoming messages
 def process_message(question):
+  print(question)
 
   if len(question) < 8:  # Input query should be at least 8 chars long
     return {"answer": "insufficient", "id": "", "topic": ""}

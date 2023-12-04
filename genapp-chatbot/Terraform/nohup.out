@@ -369,3 +369,465 @@ WARNING: This command is using service account impersonation. All API calls will
 WARNING: This command is using service account impersonation. All API calls will be executed as [sa-cmsademo1-run-s@ford-c7ff84dd12dcb8181799bfe1.iam.gserviceaccount.com].
 WARNING: This command is using service account impersonation. All API calls will be executed as [sa-cmsademo1-run-s@ford-c7ff84dd12dcb8181799bfe1.iam.gserviceaccount.com].
 ERROR: (gcloud.run.services.update) PERMISSION_DENIED: Permission 'run.services.get' denied on resource 'namespaces/ford-4360b648e7193d62719765c7/services/webex-bot-genapp' (or resource may not exist).
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
+Fatal Python error: init_sys_streams: can't initialize sys standard streams
+Python runtime state: core initialized
+OSError: [Errno 9] Bad file descriptor
+
+Current thread 0x00000001e5049300 (most recent call first):
+  <no Python frame>
+/opt/homebrew/bin/gcloud: line 187: exec: python: not found
