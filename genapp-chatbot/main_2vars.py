@@ -151,7 +151,7 @@ def get_followup(message_id, room_id, tstamp):
 
   json_data = response.json()
 
-  logging.info(json_data)
+  # logging.info(json_data)
 
   session_ID=json_data['inputs']['sessionID']
   followup_question=json_data['inputs']['followup']
@@ -256,7 +256,7 @@ def get_followup_web(question, conversation_ID):
   response = requests.request("POST", url, headers=headers, data=payload)
   data = json.loads(response.text)
   json_data = json.dumps(data)
-  logging.info(json_data)
+  # logging.info(json_data)
 
   followup_response=data['reply']['summary']['summaryText']
   followup_response=re.sub(r'\[[^\]]*\]|\([^)]*\)', '', followup_response)
@@ -314,7 +314,7 @@ def construt_prompt(reply_str, question):
 
 def question_prompt(question):
   
-  header = """Compare and contrast three different phrasings for the following inquiry, utilizing vocabulary that is distinct and creative in each instance. The output should be in JSON format which contains the three phrasings
+  header = """Compare and contrast a different phrasing for the following inquiry, utilizing vocabulary that is distinct and creative in each instance. The output should be in JSON format which contains the three phrasings
 
   Context:-\n
   """
@@ -325,16 +325,12 @@ def question_prompt(question):
   output: {\"answer\" : \"NA\"}
 
   input: What is Sharepoint?
-  output: {\"answer 1\" : \"NA\", \"answer 2\" : \"NA\", \"answer 3\" : \"NA\"}
+  output: {\"answer \" : \"NA\}
 
   input: How can I request access to a GCP service that Ford doesn't currently support?
 
 
-  output: {\"answer 1\": \"What is the protocol for acquiring authorization to utilize a GCP service that is not yet endorsed by Ford?\",
-
-\"answer 2\": \"I am seeking guidance on the procedure for gaining admittance to a GCP service that is not currently sanctioned by Ford. Can you assist me?\",
-
-\"answer 3\": \"Is there a way for me to obtain permission to utilize a GCP service that Ford currently does not endorse? If so, what would the appropriate steps be?\"}
+  output: {\"answer \": \"What is the protocol for acquiring authorization to utilize a GCP service that is not yet endorsed by Ford?\",
 
   """
 
@@ -403,7 +399,7 @@ def process_message(question):
   # print(json.dumps(data, indent=4))
   json_data = json.dumps(data)
 
-  logging.info(json_data)
+  # logging.info(json_data)
 
   genapp_response = data['reply']['reply'] #Gen_App response
 
@@ -418,13 +414,12 @@ def process_message(question):
   question_llm = LLM_MODEL.predict(qs_prompt, **PARAMETERS)
   
   results = []
-
   try:
   # print(question_llm)
     question_response = json.loads(question_llm.text)
-    question1, question2, question3=(json.dumps(question_response['answer 1']), question_response['answer 2'], question_response['answer 3'])
-    print(question1, question2, question3)
-    questions = [question1, question2]
+    question1=(json.dumps(question_response['answer']))
+    print(question1)
+    questions = [question1]
     results = [genapp_response]
 
     for query in questions:
@@ -454,7 +449,7 @@ def process_message(question):
     print("Error parsing JSON: {}".format(e))
     results = [genapp_response]
 
-  prompt =  construt_prompt(str(results), question) ## 4. Construct prompt
+  prompt =  construt_prompt(genapp_response, question) ## 4. Construct prompt
   prompt = remove_unwanted_chars(prompt)
 
   print("This is the prompt:" + prompt) ##
@@ -503,6 +498,7 @@ def process_message(question):
   
   total_time = end_time - start_time
   
+  print(str(format_response))
   return res, format_response, genapp_response, searchResults[:3], total_time
 
 # Define a function to send messages to the Webex Teams API
@@ -514,8 +510,7 @@ def send_message(room_id, response_json, format_response, genapp_answer, suggest
   for item in suggested_list:
     print(item)
     title = item.split('/')[-1].replace('.pdf', '')
-    # name = title.split(' — ')[0].split(' | ')[0].split(' — ')[0]
-    name = title.split(' | ')[0].split(' — ')[0].split(' - ')[0]
+    name = title.split(' — ')[0].split(' | ')[0]
     print(name)
     
     if name in path:
@@ -556,7 +551,7 @@ def send_message(room_id, response_json, format_response, genapp_answer, suggest
     # print(type(format_response))
   # print(str(format_response))
  
-  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response)
     # CARD_PAYLOAD['body'][1]['text'] = response_json['answer']
     #Follow-Up
 
@@ -620,8 +615,7 @@ def send_message_web(question, response_json, format_response, suggested_list):
   for item in suggested_list:
       title = item.split('/')[-1].replace('.pdf', '')
       # name = title.split(' — ')[0].split(' | ')[0]
-      # name = title.split(' — ')[0].split(' | ')[0]
-      name = title.split(' | ')[0].split(' — ')[0].split(' - ')[0]
+      name = title.split(' — ')[0].split(' | ')[0]
       print(name)
       
       if name in path:
@@ -633,7 +627,7 @@ def send_message_web(question, response_json, format_response, suggested_list):
 
   res = {
     "question": question,
-    "response" :  format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+    "response" :  format_response if response_json['answer'] == "NA" else str(format_response)
 ,
     "links": list(links.values())   # Append the links to the res dictionary
   }
@@ -662,7 +656,7 @@ def get_conversation_id(room_id):
       response = requests.request("POST", url, headers=headers, data=payload)
       conversation = json.loads(response.text)
       json_data = json.dumps(conversation)
-      logging.info(json_data)
+      # logging.info(json_data)
       conversation_id = conversation['name'].split("/")[-1]
 
       # Store conversation ID in memory
@@ -711,7 +705,7 @@ def handle_webhook():
 
     validation, validation_msg = validate_request(request.get_data(), request.headers.get('X-Spark-Signature'))
 
-    if validation == True : ##<----   *****
+    if validation != True : ##<----   *****
       request_source="web"
       data = json.loads(request.data)
       # print("Question:" + data['data']['text'])
@@ -781,7 +775,7 @@ def handle_webhook():
 
         print(f"Total execution time: {total_time} seconds")
 
-        # upload_data_bq(message_text, format_response,  sender_email, sessionID, conversation_ID, request_source, total_time, data['data']['created']) # Upload question-answer data to bq with unique sessionID
+        upload_data_bq(message_text, format_response,  sender_email, sessionID, conversation_ID, request_source, total_time, data['data']['created']) # Upload question-answer data to bq with unique sessionID
 
 
         send_message(room_id, response_json, format_response, genapp_answer, suggested_list)
@@ -837,7 +831,7 @@ def handle_webhook():
 
       
       response_json, format_response, genapp_answer, suggested_list, total_time = process_message(question)
-      # upload_data_bq(question, format_response,  cdsid, sessionID, conversation_ID, request_source, total_time, tstamp) # Upload question-answer data to bq with unique sessionID
+      upload_data_bq(question, format_response,  cdsid, sessionID, conversation_ID, request_source, total_time, tstamp) # Upload question-answer data to bq with unique sessionID
 
 
       return send_message_web(question, response_json, format_response, suggested_list)
@@ -849,10 +843,10 @@ def handle_webhook():
 
       conversation_ID = get_conversation_id(cdsid)
 
-      followup_response, total_time = get_followup_web(question,conversation_ID)
+      followup_response, total_time = get_followup_web(question, sessionID ,conversation_ID, request_source, tstamp)
       # return send_message_web(question, response_json, format_response, suggested_list)
 
-      # upload_data_bq(question, format_response,  cdsid, sessionID, conversation_ID, request_source, total_time, tstamp) # Upload question-answer data to bq with unique sessionID
+      upload_data_bq(question, format_response,  cdsid, sessionID, conversation_ID, request_source, total_time, tstamp) # Upload question-answer data to bq with unique sessionID
 
 
       response_json={"answer":""}

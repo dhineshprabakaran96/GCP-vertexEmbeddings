@@ -503,6 +503,7 @@ def process_message(question):
   
   total_time = end_time - start_time
   
+  print(str(format_response))
   return res, format_response, genapp_response, searchResults[:3], total_time
 
 # Define a function to send messages to the Webex Teams API
@@ -514,8 +515,7 @@ def send_message(room_id, response_json, format_response, genapp_answer, suggest
   for item in suggested_list:
     print(item)
     title = item.split('/')[-1].replace('.pdf', '')
-    # name = title.split(' — ')[0].split(' | ')[0].split(' — ')[0]
-    name = title.split(' | ')[0].split(' — ')[0].split(' - ')[0]
+    name = title.split(' — ')[0].split(' | ')[0]
     print(name)
     
     if name in path:
@@ -556,7 +556,7 @@ def send_message(room_id, response_json, format_response, genapp_answer, suggest
     # print(type(format_response))
   # print(str(format_response))
  
-  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response)
     # CARD_PAYLOAD['body'][1]['text'] = response_json['answer']
     #Follow-Up
 
@@ -620,8 +620,7 @@ def send_message_web(question, response_json, format_response, suggested_list):
   for item in suggested_list:
       title = item.split('/')[-1].replace('.pdf', '')
       # name = title.split(' — ')[0].split(' | ')[0]
-      # name = title.split(' — ')[0].split(' | ')[0]
-      name = title.split(' | ')[0].split(' — ')[0].split(' - ')[0]
+      name = title.split(' — ')[0].split(' | ')[0]
       print(name)
       
       if name in path:
@@ -633,7 +632,7 @@ def send_message_web(question, response_json, format_response, suggested_list):
 
   res = {
     "question": question,
-    "response" :  format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+    "response" :  format_response if response_json['answer'] == "NA" else str(format_response)
 ,
     "links": list(links.values())   # Append the links to the res dictionary
   }
@@ -711,7 +710,7 @@ def handle_webhook():
 
     validation, validation_msg = validate_request(request.get_data(), request.headers.get('X-Spark-Signature'))
 
-    if validation == True : ##<----   *****
+    if validation != True : ##<----   *****
       request_source="web"
       data = json.loads(request.data)
       # print("Question:" + data['data']['text'])
@@ -781,7 +780,7 @@ def handle_webhook():
 
         print(f"Total execution time: {total_time} seconds")
 
-        # upload_data_bq(message_text, format_response,  sender_email, sessionID, conversation_ID, request_source, total_time, data['data']['created']) # Upload question-answer data to bq with unique sessionID
+        upload_data_bq(message_text, format_response,  sender_email, sessionID, conversation_ID, request_source, total_time, data['data']['created']) # Upload question-answer data to bq with unique sessionID
 
 
         send_message(room_id, response_json, format_response, genapp_answer, suggested_list)
@@ -837,7 +836,7 @@ def handle_webhook():
 
       
       response_json, format_response, genapp_answer, suggested_list, total_time = process_message(question)
-      # upload_data_bq(question, format_response,  cdsid, sessionID, conversation_ID, request_source, total_time, tstamp) # Upload question-answer data to bq with unique sessionID
+      upload_data_bq(question, format_response,  cdsid, sessionID, conversation_ID, request_source, total_time, tstamp) # Upload question-answer data to bq with unique sessionID
 
 
       return send_message_web(question, response_json, format_response, suggested_list)
@@ -849,10 +848,10 @@ def handle_webhook():
 
       conversation_ID = get_conversation_id(cdsid)
 
-      followup_response, total_time = get_followup_web(question,conversation_ID)
+      followup_response, total_time = get_followup_web(question, sessionID ,conversation_ID, request_source, tstamp)
       # return send_message_web(question, response_json, format_response, suggested_list)
 
-      # upload_data_bq(question, format_response,  cdsid, sessionID, conversation_ID, request_source, total_time, tstamp) # Upload question-answer data to bq with unique sessionID
+      upload_data_bq(question, format_response,  cdsid, sessionID, conversation_ID, request_source, total_time, tstamp) # Upload question-answer data to bq with unique sessionID
 
 
       response_json={"answer":""}

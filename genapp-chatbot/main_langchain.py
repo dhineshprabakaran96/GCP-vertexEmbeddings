@@ -2,6 +2,12 @@
 
 import vertexai
 from vertexai.language_models import TextGenerationModel
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.memory import ConversationSummaryBufferMemory
+from langchain.chains import SimpleSequentialChain
+from langchain.chat_models import ChatVertexAI
+from langchain.prompts import ChatPromptTemplate
+from langchain.chains import ConversationChain
 from google.cloud import bigquery
 from google.api_core.exceptions import GoogleAPIError
 from flask import Flask, request, jsonify
@@ -136,148 +142,6 @@ def get_message(message_id):
     # Request failed, handle the error
     return 'Request failed with status code: ' + str(response.status_code)
   
-def get_followup(message_id, room_id, tstamp):
-
-  sa_token, expiry_time = auth.fed_token(Client_id, Secret)
-
-  GET_URL = "https://webexapis.com/v1/attachment/actions/" + message_id
-
-  headers = {
-      "Authorization": f"Bearer {BOT_ACCESS_TOKEN}"
-  }
-
-  handle_proxies("SET")
-  response = requests.get(GET_URL, headers=headers)
-
-  json_data = response.json()
-
-  logging.info(json_data)
-
-  session_ID=json_data['inputs']['sessionID']
-  followup_question=json_data['inputs']['followup']
-  conversation_ID=json_data['inputs']['conversationID']
-
-  CARD_PAYLOAD['actions'][0]['data']['sessionID'] = session_ID
-  CARD_PAYLOAD['actions'][0]['data']['conversationID'] = conversation_ID
-  
-  print(f"followup question: {followup_question}")
-  print(f"conversation ID: {conversation_ID}")
-
-
-#get_followup response from GenAPp
-  url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/{conversation_ID}:converse"
-
-  payload = json.dumps({
-    "query": {
-      "input": followup_question
-    },
-    "summarySpec": {
-      "summaryResultCount": 5,
-      "ignoreAdversarialQuery": True,
-      "includeCitations": True
-    }
-  })
-  headers = {
-    # 'Authorization': 'Bearer ' + auth.main(),
-    'Authorization': 'Bearer ' + sa_token,
-    'Content-Type': 'application/json'
-  }
-
-  response = requests.request("POST", url, headers=headers, data=payload)
-  data = json.loads(response.text)
-
-  followup_response=data['reply']['summary']['summaryText']
-  followup_response=re.sub(r'\[[^\]]*\]|\([^)]*\)', '', followup_response)
-  print(followup_response)
-
-  CARD_PAYLOAD['body'][1]['text'] = followup_response
-
-  # query = f"""INSERT INTO `{PROJECT_ID}.chatgpt.{feedback_bq_table}` (session_id, cdsid, conversation_id, query, response, response_timestamp)
-  # VALUES ('{session_ID}', '{cdsid}', '{cdsid}','{followup_question}', '{followup_response}', '{tstamp}')"""
-
-  # handle_proxies("UNSET")
-  # bigquery.Client(project = PROJECT_ID).query(query)
-
-  # Set up the API request headers and payload
-
-  headers = {
-      "Authorization": f"Bearer {BOT_ACCESS_TOKEN}",
-      "Content-Type": "application/json"
-  }
-  payload = {
-      "roomId": room_id,
-      "text": "",
-      "attachments": [
-        {
-          "contentType": "application/vnd.microsoft.card.adaptive",
-          "content": CARD_PAYLOAD
-        }
-      ]
-  }
-
-  # Send the message to the Webex Teams API
-  handle_proxies("SET")
-  response = requests.post(
-      "https://api.ciscospark.com/v1/messages",
-      headers=headers,
-      json=payload
-  )
-
-def get_followup_web(question, conversation_ID):
-
-  print(conversation_ID)
-  start_time = time.time()  
-  sa_token, expiry_time = auth.fed_token(Client_id, Secret)
-  
-  followup_question=question
-
-  print(followup_question)
-
-
-  #get_followup response from GenAPp
-  url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/{conversation_ID}:converse"
-
-  payload = json.dumps({
-    "query": {
-      "input": followup_question
-    },
-    "summarySpec": {
-      "summaryResultCount": 5,
-      "ignoreAdversarialQuery": True,
-      "includeCitations": True
-    }
-  })
-  headers = {
-    # 'Authorization': 'Bearer ' + auth.main(),
-    'Authorization': 'Bearer ' + sa_token,
-    'Content-Type': 'application/json'
-  }
-
-  response = requests.request("POST", url, headers=headers, data=payload)
-  data = json.loads(response.text)
-  json_data = json.dumps(data)
-  logging.info(json_data)
-
-  followup_response=data['reply']['summary']['summaryText']
-  followup_response=re.sub(r'\[[^\]]*\]|\([^)]*\)', '', followup_response)
-  print(followup_response)
-
-  end_time = time.time()
-  
-  total_time = end_time - start_time
-
-  # query = f"""INSERT INTO `{PROJECT_ID}.chatgpt.{astrobot_followup_web}` (session_id, cdsid, conversation_id, query, response, response_timestamp)
-  # VALUES ('{session_ID}', '{cdsid}', '{cdsid}','{followup_question}', '{followup_response}', '{tstamp}')"""
-
-  # handle_proxies("UNSET")
-  # bigquery.Client(project = PROJECT_ID).query(query)
-
-  # Set up the API request headers and payload
-
-  return followup_response, total_time
-
-
-
 def remove_unwanted_chars(prompt):
   string_without_unwanted_chars = prompt.replace(u'\u00A0', ' ').replace(u'\u200b', '').replace("'", "\'").replace('"', '\"')
 
@@ -459,10 +323,21 @@ def process_message(question):
 
   print("This is the prompt:" + prompt) ##
 
-  llm_response = LLM_MODEL.predict(   ## 5. generate response from LLM
-      prompt,
-      **PARAMETERS
-    )
+  # llm_response = LLM_MODEL.predict(   ## 5. generate response from LLM
+  #     prompt,
+  #     **PARAMETERS
+  #   )
+  
+  memory = ConversationBufferWindowMemory(k=1)               
+  
+  llm=ChatVertexAI(temperature=0.0, llm_model=LLM_MODEL)
+
+  conversation = ConversationChain(
+    llm=llm, 
+    memory = memory,
+    verbose=False
+)
+  conversation.predict(prompt)
 
   llm_data={}
   try:

@@ -242,7 +242,7 @@ path = {                                                              # chatgpt_
                "Complete Setup in API Catalog":"https://www.eesewiki.ford.com/display/FEAPIS/Complete+Setup+in+API+Catalog",
                "Configure API Security":"https://www.eesewiki.ford.com/display/FEAPIS/Configure+API+Security",
                "Connect with Us":"https://www.eesewiki.ford.com/display/FEAPIS/Connect+with+Us",
-               "Disaster Recovery - NA":"https://www.eesewiki.ford.com/display/FEAPIS/Disaster+Recovery+-+NA",
+               "Disaster Recovery":"https://www.eesewiki.ford.com/display/FEAPIS/Disaster+Recovery+-+NA",
                "Enterprise API Standards":"https://www.eesewiki.ford.com/display/FEAPIS/Enterprise+API+Standards",
                "Ford Advisory Management (FAM) Usage":"https://www.eesewiki.ford.com/display/FEAPIS/Ford+Advisory+Management+%28FAM%29+Usage",
                "Ford Enterprise API Strategy":"",
