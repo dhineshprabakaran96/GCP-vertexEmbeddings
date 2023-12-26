@@ -2,6 +2,7 @@
 
 import vertexai
 from vertexai.language_models import TextGenerationModel
+from vertexai.preview.generative_models import GenerativeModel, ChatSession
 from google.cloud import bigquery
 from google.api_core.exceptions import GoogleAPIError
 from flask import Flask, request, jsonify
@@ -36,13 +37,12 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 BOT_ACCESS_TOKEN = os.environ["BOT_ACCESS_TOKEN"]
 bot_email = "bmc-genapp@webex.bot"
 
-INTEGRATION_ACCESS_TOKEN=os.environ["INTEGRATION_ACCESS_TOKEN"]
-
 PROJECT_ID = "ford-4360b648e7193d62719765c7"
 
 feedback_bq_table = "astrobot_followup_new"
 
-LLM_MODEL = TextGenerationModel.from_pretrained("text-bison@001")
+# LLM_MODEL = TextGenerationModel.from_pretrained("text-bison@001")
+LLM_MODEL=model = GenerativeModel("gemini-pro")
 
 PARAMETERS = {
   "temperature": 0.1,
@@ -56,7 +56,7 @@ CARD_PAYLOAD = {
     "body": [
         {
             "type": "TextBlock",
-            "text": "Astrobot",
+            "text": "GenApp Chatbot",
             "horizontalAlignment": "Left",
             "wrap": True,
             "fontType": "Default",
@@ -137,25 +137,6 @@ def get_message(message_id):
   else:
     # Request failed, handle the error
     return 'Request failed with status code: ' + str(response.status_code)
-  
-def get_message_space(message_id):
-  GET_URL = "https://webexapis.com/v1/messages/" + message_id
-
-  headers = {
-      "Authorization": f"Bearer {INTEGRATION_ACCESS_TOKEN}"
-  }
-
-  handle_proxies("SET")
-  response = requests.get(GET_URL, headers=headers)
-
-  if response.status_code == 200:
-    # Request was successful
-    json_data = response.json()
-    return json_data['text']
-  else:
-    # Request failed, handle the error
-    return 'Request failed with status code: ' + str(response.status_code)
-
   
 def get_followup(message_id, room_id, tstamp):
 
@@ -363,7 +344,7 @@ def question_prompt(question):
 
   return header + context + examples + footer
 
-def upload_data_bq(question, answer, cdsid, sessionID, conversation_ID, request_source, exec_time, tstamp ):
+def upload_data_bq(question, answer, cdsid, tstamp ):
 
   # # Create the unique session ID by hashing the CDSID and concatenating with the timestamp
   # unique = cdsid + str(int(time.time()))
@@ -381,8 +362,8 @@ def upload_data_bq(question, answer, cdsid, sessionID, conversation_ID, request_
   answer=str(answer)
   answer = answer.replace('\n', '\\n') 
 
-  query = f"""INSERT INTO `{PROJECT_ID}.chatgpt.{feedback_bq_table}` (session_id, cdsid, query, response, response_time, response_timestamp, conversation_id, request_source)
-VALUES ('{sessionID}', '{cdsid}', '{question}', '{str(answer)}', '{round(exec_time,3)} seconds', '{tstamp}', '{conversation_ID}', '{request_source}')"""
+  query = f"""INSERT INTO `{PROJECT_ID}.chatgpt.{feedback_bq_table}` (cdsid, query)
+VALUES ( '{cdsid}', '{question}')"""
   
   print(query)
 
@@ -436,7 +417,7 @@ def process_message(question):
   ##Create variations of questions using LLM
 
   qs_prompt=question_prompt(question)
-  question_llm = LLM_MODEL.predict(qs_prompt, **PARAMETERS)
+  question_llm = LLM_MODEL.generate_content(qs_prompt)
   
   results = []
 
@@ -480,11 +461,12 @@ def process_message(question):
 
   print("This is the prompt:" + prompt) ##
 
-  llm_response = LLM_MODEL.predict(   ## 5. generate response from LLM
+  llm_response = LLM_MODEL.generate_content(   ## 5. generate response from LLM
       prompt,
-      **PARAMETERS
+      
     )
 
+  print(llm_response)
   llm_data={}
   try:
       llm_data = json.loads(llm_response.text)
@@ -506,7 +488,9 @@ def process_message(question):
     {llm_data['answer']}
     """
 
-    format_response=LLM_MODEL.predict(format_prompt, **PARAMETERS)
+    format_response=LLM_MODEL.generate_content(format_prompt)
+
+    print(format_response.candidates[0].content.parts[0].text)
 
   else:
     format_response = "I'm sorry, I'm not able to provide an answer at the moment. Could you please try rephrasing your question?"
@@ -527,7 +511,7 @@ def process_message(question):
   return res, format_response, genapp_response, searchResults[:3], total_time
 
 # Define a function to send messages to the Webex Teams API
-def send_message(room_id, message_id, response_json, format_response, genapp_answer, suggested_list):
+def send_message(room_id, response_json, format_response, genapp_answer, suggested_list):
   # print(suggested_list)
 
   CARD_PAYLOAD['body'] = CARD_PAYLOAD['body'][:4]
@@ -577,7 +561,7 @@ def send_message(room_id, message_id, response_json, format_response, genapp_ans
     # print(type(format_response))
   # print(str(format_response))
  
-  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response.candidates[0].content.parts[0].text)
     # CARD_PAYLOAD['body'][1]['text'] = response_json['answer']
     #Follow-Up
 
@@ -631,97 +615,6 @@ def send_message(room_id, message_id, response_json, format_response, genapp_ans
   if not response.ok:
       raise Exception("Failed to send message: {}".format(response.text))
   
-def send_message_space(room_id, message_id, response_json, format_response, genapp_answer, suggested_list):
-  CARD_PAYLOAD['body'] = CARD_PAYLOAD['body'][:4]
-
-  for item in suggested_list:
-    print(item)
-    title = item.split('/')[-1].replace('.pdf', '')
-    # name = title.split(' — ')[0].split(' | ')[0].split(' — ')[0]
-    name = title.split(' | ')[0].split(' — ')[0].split(' - ')[0]
-    print(name)
-    
-    if name in path:
-      CARD_PAYLOAD["body"].append({
-            "type": "ActionSet",
-            "actions": [
-                {
-                    "type": "Action.OpenUrl",
-                    "title": item.split('/')[-1].replace('.pdf', ''),
-                    "url": path[name] ## replace this URL for suggestion
-                }
-            ],
-            "horizontalAlignment": "Left",
-            "spacing": "Small"
-        })
-    else:
-      CARD_PAYLOAD["body"].append({
-            "type": "ActionSet",
-            "actions": [
-                {
-                    "type": "Action.OpenUrl",
-                    "title": "GCP Docs | Home",
-                    "url":"https://docs.gcp.ford.com/docs/" ## replace this URL for suggestion
-                }
-            ],
-            "horizontalAlignment": "Left",
-            "spacing": "Small"
-        })
-  
-  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
-  
-  # CARD_PAYLOAD["body"].append({
-  #     "type": "Container"
-  # })
-  # CARD_PAYLOAD["body"].append({
-  #     "type": "TextBlock",
-  #     "text": "Got a follow-up question ?",
-  #     "horizontalAlignment": "Left",
-  #     "spacing": "Large",
-  #     "fontType": "Monospace",
-  #     "size": "Small",
-  #     "color": "Dark",
-  #     "isSubtle": True,
-  #     "separator": True
-  # })
-  
-  # CARD_PAYLOAD["body"].append({
-  #     "type": "Input.Text",
-  #     "id": "followup",
-  #     "placeholder": "Type your follow-up question"
-  # })
- 
-
-  # Set up the API request headers and payload
-  headers = {
-      "Authorization": f"Bearer {INTEGRATION_ACCESS_TOKEN}",
-      "Content-Type": "application/json"
-  }
-  payload = {
-      "roomId": room_id,
-      "text": "",
-      "parentId": message_id,
-      "attachments": [
-        {
-          "contentType": "application/vnd.microsoft.card.adaptive",
-          "content": CARD_PAYLOAD
-        }
-      ]
-  }
-
-  # Send the message to the Webex Teams API
-  handle_proxies("SET")
-  response = requests.post(
-      "https://api.ciscospark.com/v1/messages",
-      headers=headers,
-      json=payload
-  )
-
-  # Check if the request was successful
-  if not response.ok:
-      raise Exception("Failed to send message: {}".format(response.text))
-
-  
 def send_message_web(question, response_json, format_response, suggested_list):
   # print(suggested_list)
 
@@ -745,14 +638,12 @@ def send_message_web(question, response_json, format_response, suggested_list):
 
   res = {
     "question": question,
-    "response" :  format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+    "response" :  format_response if response_json['answer'] == "NA" else str(format_response.candidates[0].content.parts[0].text)
 ,
     "links": list(links.values())   # Append the links to the res dictionary
   }
 
   return jsonify(res)
-
-
 
   
 def get_conversation_id(room_id):
@@ -783,7 +674,6 @@ def get_conversation_id(room_id):
       conversation_ids[room_id] = conversation_id
       
       return conversation_id
-      
 
 
 # ********** Validate Incoming Request **********
@@ -817,110 +707,97 @@ def index():
 def handle_webhook():
   
   data = json.loads(request.data)  
-  # json_data = json.dumps(data)
-  # logging.info(json_data)
-  print(data)
+  json_data = json.dumps(data)
+  logging.info(json_data)
 
 
   sender_email=""
   cdsid=""
 
   if 'orgId' in data:
-    room_id = data['data']['roomId']
     print("The request is from Webex")
-    if 'parentId' not in data['data'].keys():
 
-      validation, validation_msg = validate_request(request.get_data(), request.headers.get('X-Spark-Signature'))
+    validation, validation_msg = validate_request(request.get_data(), request.headers.get('X-Spark-Signature'))
 
-      if validation == True : ##<----   *****
-        request_source="web"
-        data = json.loads(request.data)
-        # print("Question:" + data['data']['text'])
+    if validation == True : ##<----   *****
+      request_source="web"
+      data = json.loads(request.data)
+      # print("Question:" + data['data']['text'])
 
-        message_id = data['data']['id']
-        room_id = data['data']['roomId']
-        # print(message_id)
+      message_id = data['data']['id']
+      room_id = data['data']['roomId']
+      # print(message_id)
 
-        conversation_ID = get_conversation_id(room_id)
+      conversation_ID = get_conversation_id(room_id)
 
-        print(conversation_ID)
+      print(conversation_ID)
 
-        CARD_PAYLOAD['actions'][0]['data']['conversationID'] = conversation_ID
+      CARD_PAYLOAD['actions'][0]['data']['conversationID'] = conversation_ID
 
+      
+
+      if data['resource'] == "messages" and data['event'] == "created":
+
+        sa_token, expiry_time = auth.fed_token(Client_id, Secret)
+
+        # Process incoming request
+        message_text = ""
+        if 'text' in data['data'].keys():
+          message_text = data['data']['text']
+        else:
+          message_text = get_message(message_id)
+
+        sender_email = ""
+        if 'personEmail' in data['data'].keys():
+          sender_email = data['data']['personEmail'] 
+
+        # Check if the message came from the bot, to avoid infinite loops
+        if sender_email == bot_email:
+            return "OK"
         
+        cdsid=sender_email
 
-        if data['resource'] == "messages" and data['event'] == "created":
+        unique = sender_email + str(int(time.time()))
+        hash_object = hashlib.sha256(unique.encode('utf-8'))
+        sessionID = hash_object.hexdigest()
 
-          sa_token, expiry_time = auth.fed_token(Client_id, Secret)
+        CARD_PAYLOAD['actions'][0]['data']['sessionID'] = sessionID
+        
+        #Add the question to conversation_history
+        url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/{conversation_ID}:converse"
 
-          # Process incoming request
-          message_text = ""
-          if  room_id == "Y2lzY29zcGFyazovL3VzL1JPT00vM2E0MmVjYTAtNzQwZi0xMWVlLWEzYWYtY2JmNzExMTExOGQ3" :
-            if 'text' in data['data'].keys():
-              message_text = data['data']['text']
-            else:
-              message_text = get_message(message_id)
-          else:
-            if 'text' in data['data'].keys():
-              message_text = data['data']['text']
-            else:
-              message_text = get_message_space(message_id)
+        payload = json.dumps({
+          "query": {
+            "input": message_text
+          },
+          "summarySpec": {
+            "summaryResultCount": 5,
+            "ignoreAdversarialQuery": True,
+            "includeCitations": True
+          }
+        })
+        headers = {
+          # 'Authorization': 'Bearer ' + auth.main(),
+          'Authorization': 'Bearer ' + sa_token,
+          'Content-Type': 'application/json'
+      }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        # Process the incoming message
+        response_json, format_response, genapp_answer, suggested_list, total_time = process_message(message_text)
+
+        print(f"Total execution time: {total_time} seconds")
+
+        upload_data_bq(message_text, format_response,  sender_email, data['data']['created']) # Upload question-answer data to bq with unique sessionID
 
 
-          sender_email = ""
-          if 'personEmail' in data['data'].keys():
-            sender_email = data['data']['personEmail'] 
-
-          # Check if the message came from the bot, to avoid infinite loops
-          if sender_email == bot_email:
-              return "OK"
-          
-          cdsid=sender_email
-
-          unique = sender_email + str(int(time.time()))
-          hash_object = hashlib.sha256(unique.encode('utf-8'))
-          sessionID = hash_object.hexdigest()
-
-          CARD_PAYLOAD['actions'][0]['data']['sessionID'] = sessionID
-          
-          #Add the question to conversation_history
-          url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/{conversation_ID}:converse"
-
-          payload = json.dumps({
-            "query": {
-              "input": message_text
-            },
-            "summarySpec": {
-              "summaryResultCount": 5,
-              "ignoreAdversarialQuery": True,
-              "includeCitations": True
-            }
-          })
-          headers = {
-            # 'Authorization': 'Bearer ' + auth.main(),
-            'Authorization': 'Bearer ' + sa_token,
-            'Content-Type': 'application/json'
-        }
-
-          response = requests.request("POST", url, headers=headers, data=payload)
-
-          # Process the incoming message
-          response_json, format_response, genapp_answer, suggested_list, total_time = process_message(message_text)
-
-          print(f"Total execution time: {total_time} seconds")
-
-          # upload_data_bq(message_text, format_response,  sender_email, sessionID, conversation_ID, request_source, total_time, data['data']['created']) # Upload question-answer data to bq with unique sessionID
-
-          if  room_id == "Y2lzY29zcGFyazovL3VzL1JPT00vM2E0MmVjYTAtNzQwZi0xMWVlLWEzYWYtY2JmNzExMTExOGQ3" :
-            send_message(room_id, message_id, response_json, format_response, genapp_answer, suggested_list)
-          else:
-            send_message_space(room_id, message_id, response_json, format_response, genapp_answer, suggested_list)
-
-        elif data['resource'] == "attachmentActions" and data['event'] == "created": # If incoming request is user's feedback -> a new attachmentAction (feedback) is created
-          # Process incoming feedback and upload to Bigquery using session ID
-          get_followup(message_id, room_id, data['data']['created'])
-      else:
-        return "Authentication failed!"
+        send_message(room_id, response_json, format_response, genapp_answer, suggested_list)
+      elif data['resource'] == "attachmentActions" and data['event'] == "created": # If incoming request is user's feedback -> a new attachmentAction (feedback) is created
+        # Process incoming feedback and upload to Bigquery using session ID
+        get_followup(message_id, room_id, data['data']['created'])
+    else:
+      return "Authentication failed!"
 
   elif "question" in data:
     request_source="web"

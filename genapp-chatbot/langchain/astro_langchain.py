@@ -11,9 +11,6 @@ from langchain.chains import SequentialChain
 from langchain.chains import LLMChain
 from langchain.chains import ConversationChain
 from google.api_core.exceptions import GoogleAPIError
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import logging 
 import sys
 import requests
 import json
@@ -27,7 +24,7 @@ import datetime
 from datetime import datetime
 
 
-question="How do you monitor the status of a DAG and its tasks?"
+question="what is astronomer"
 
 #ADFS Token credentials
 Client_id= os.environ["CLIENT_ID"]
@@ -97,6 +94,7 @@ def question_prompt(question):
 
   return header + context + examples + footer
 
+
 sa_token, expiry_time = auth.fed_token(Client_id, Secret)
 
 
@@ -139,7 +137,7 @@ try:
 # print(question_llm)
   question_response = json.loads(question_llm.text)
   question1, question2, question3=(json.dumps(question_response['answer 1']), question_response['answer 2'], question_response['answer 3'])
-  print(question1, question2, question3)
+  # print(question1, question2, question3)
   questions = [question1, question2]
   results = [genapp_response]
 
@@ -180,7 +178,7 @@ chain_one = LLMChain(llm=llm, prompt=first_prompt,
                   )  
 
 second_prompt=ChatPromptTemplate.from_template("""Only using the below text as context, Create a well-structured and readable block of below text that explains a concept or process using clear and concise language. Pay attention to formatting, such as using bullet points, numbered lists, or headers, to improve the overall readability of the text.
-                                               Context:-\n""" "\n\n{answer}")
+                                              Context:-\n""" "\n\n{answer}")
 chain_two = LLMChain(llm=llm, prompt=second_prompt, 
                     output_key="format_response"
                   )
@@ -194,12 +192,7 @@ overall_chain = SequentialChain(
     verbose=True
 )
 
-# question="What is apigee?"
 results=overall_chain(question)
-
-print(type(results))
-print(results.keys)
-print('--'*50)
 print(results['format_response'])
 
 
