@@ -24,7 +24,7 @@ import datetime
 from datetime import datetime
 
 
-question="what is astronomer"
+question="what is apigee"
 
 #ADFS Token credentials
 Client_id= os.environ["CLIENT_ID"]
@@ -194,8 +194,6 @@ overall_chain = SequentialChain(
 
 results=overall_chain(question)
 print(results['format_response'])
-
-
 
 
 

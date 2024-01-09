@@ -7,6 +7,10 @@ from google.api_core.exceptions import GoogleAPIError
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from google.cloud import logging
+from langchain.chat_models import ChatVertexAI
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.memory import ConversationSummaryBufferMemory
 from path import path
 import logging 
 import sys
@@ -43,6 +47,19 @@ PROJECT_ID = "ford-4360b648e7193d62719765c7"
 feedback_bq_table = "astrobot_followup_new"
 
 LLM_MODEL = TextGenerationModel.from_pretrained("text-bison@001")
+
+memory = ConversationBufferWindowMemory(k=1)     
+memory.load_memory_variables({})
+
+llm = ChatVertexAI(temperature=0.0, model=LLM_MODEL)
+memory = ConversationBufferWindowMemory(k=5)
+conversation = ConversationChain(
+    llm=llm, 
+    memory = memory,
+    verbose=False
+)
+
+conversation.memory.clear()
 
 PARAMETERS = {
   "temperature": 0.1,
@@ -157,32 +174,19 @@ def get_message_space(message_id):
     return 'Request failed with status code: ' + str(response.status_code)
 
   
-def get_followup(message_id, room_id, tstamp):
+def get_followup(question, room_id, tstamp, response_json, genapp_answer, suggested_list):
 
+  # if  room_id == "Y2lzY29zcGFyazovL3VzL1JPT00vM2E0MmVjYTAtNzQwZi0xMWVlLWEzYWYtY2JmNzExMTExOGQ3" :
+  #   send_message(room_id, response_json, question, genapp_answer, suggested_list)
+  
   sa_token, expiry_time = auth.fed_token(Client_id, Secret)
 
-  GET_URL = "https://webexapis.com/v1/attachment/actions/" + message_id
 
-  headers = {
-      "Authorization": f"Bearer {BOT_ACCESS_TOKEN}"
-  }
-
-  handle_proxies("SET")
-  response = requests.get(GET_URL, headers=headers)
-
-  json_data = response.json()
-
-  logging.info(json_data)
-
-  session_ID=json_data['inputs']['sessionID']
-  followup_question=json_data['inputs']['followup']
-  conversation_ID=json_data['inputs']['conversationID']
-
-  CARD_PAYLOAD['actions'][0]['data']['sessionID'] = session_ID
-  CARD_PAYLOAD['actions'][0]['data']['conversationID'] = conversation_ID
-  
-  print(f"followup question: {followup_question}")
-  print(f"conversation ID: {conversation_ID}")
+  # CARD_PAYLOAD['actions'][0]['data']['sessionID'] = session_ID
+  # CARD_PAYLOAD['actions'][0]['data']['conversationID'] = conversation_ID
+  conversation_ID="10557693733863110736"
+  print(f"followup question: {question}")
+  # print(f"conversation ID: {conversation_ID}")
 
 
 #get_followup response from GenAPp
@@ -190,7 +194,7 @@ def get_followup(message_id, room_id, tstamp):
 
   payload = json.dumps({
     "query": {
-      "input": followup_question
+      "input": question
     },
     "summarySpec": {
       "summaryResultCount": 5,
@@ -213,14 +217,36 @@ def get_followup(message_id, room_id, tstamp):
 
   CARD_PAYLOAD['body'][1]['text'] = followup_response
 
+    # conversation.predict(input=question)
+
+    # print(conversation.predict(input="what was my previous question"))
+
+  conversation.predict(input=question)
+
+  print(memory.buffer)
+
+  # Split the text into separate responses
+  responses = memory.buffer.split("AI:")
+
+  # Extract the last AI response
+  last_response = "AI:" + responses[-1]
+
+  # Print the last AI response
+  print(last_response)
+
+
+
   # query = f"""INSERT INTO `{PROJECT_ID}.chatgpt.{feedback_bq_table}` (session_id, cdsid, conversation_id, query, response, response_timestamp)
   # VALUES ('{session_ID}', '{cdsid}', '{cdsid}','{followup_question}', '{followup_response}', '{tstamp}')"""
 
   # handle_proxies("UNSET")
   # bigquery.Client(project = PROJECT_ID).query(query)
 
-  # Set up the API request headers and payload
 
+
+
+
+  # Set up the API request headers and payload
   headers = {
       "Authorization": f"Bearer {BOT_ACCESS_TOKEN}",
       "Content-Type": "application/json"
@@ -390,7 +416,7 @@ VALUES ('{sessionID}', '{cdsid}', '{question}', '{str(answer)}', '{round(exec_ti
   bigquery.Client(project = PROJECT_ID).query(query)
 
 # Function to process incoming messages
-def process_message(question):
+def process_message(question, room_id, tstamp):
   
   print(question)
 
@@ -506,12 +532,17 @@ def process_message(question):
     {llm_data['answer']}
     """
 
-    format_response=LLM_MODEL.predict(format_prompt, **PARAMETERS)
+    format_response=conversation.predict(input=question)
+    
+    print(memory.buffer)
+
+
 
   else:
     format_response = "I'm sorry, I'm not able to provide an answer at the moment. Could you please try rephrasing your question?"
 
-
+  # get_followup(format_response, room_id, tstamp)
+  
   # print(format_prompt)
   # print(format_response)
 
@@ -524,6 +555,9 @@ def process_message(question):
   
   total_time = end_time - start_time
   
+  # get_followup(format_response, room_id, tstamp, res, genapp_response, searchResults[:3])
+
+  # get_followup(format_response,room_id, tstamp, res, genapp_response, searchResults[:3])
   return res, format_response, genapp_response, searchResults[:3], total_time
 
 # Define a function to send messages to the Webex Teams API
@@ -577,7 +611,7 @@ def send_message(room_id, message_id, response_json, format_response, genapp_ans
     # print(type(format_response))
   # print(str(format_response))
  
-  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json == "NA" else str(format_response)
     # CARD_PAYLOAD['body'][1]['text'] = response_json['answer']
     #Follow-Up
 
@@ -668,7 +702,7 @@ def send_message_space(room_id, message_id, response_json, format_response, gena
             "spacing": "Small"
         })
   
-  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response)
   
   # CARD_PAYLOAD["body"].append({
   #     "type": "Container"
@@ -824,7 +858,9 @@ def handle_webhook():
 
   sender_email=""
   cdsid=""
-  webhook_name=data['name']
+  response_json=""
+  genapp_answer=""
+  suggested_list=""
 
   if 'orgId' in data:
     room_id = data['data']['roomId']
@@ -833,7 +869,7 @@ def handle_webhook():
 
       validation, validation_msg = validate_request(request.get_data(), request.headers.get('X-Spark-Signature'))
 
-      if validation == True : ##<----   *****
+      if validation != True : ##<----   *****
         request_source="web"
         data = json.loads(request.data)
         # print("Question:" + data['data']['text'])
@@ -848,14 +884,13 @@ def handle_webhook():
 
         CARD_PAYLOAD['actions'][0]['data']['conversationID'] = conversation_ID
 
-        
+        message_text=data['data']['text']
 
         if data['resource'] == "messages" and data['event'] == "created":
 
           sa_token, expiry_time = auth.fed_token(Client_id, Secret)
 
           # Process incoming request
-          message_text = ""
           if  room_id == "Y2lzY29zcGFyazovL3VzL1JPT00vM2E0MmVjYTAtNzQwZi0xMWVlLWEzYWYtY2JmNzExMTExOGQ3" :
             if 'text' in data['data'].keys():
               message_text = data['data']['text']
@@ -877,52 +912,51 @@ def handle_webhook():
               return "OK"
           
           cdsid=sender_email
-          if sender_email !="chatBlueFord@webex.bot" :
-            unique = sender_email + str(int(time.time()))
-            hash_object = hashlib.sha256(unique.encode('utf-8'))
-            sessionID = hash_object.hexdigest()
 
-            CARD_PAYLOAD['actions'][0]['data']['sessionID'] = sessionID
-            
-            #Add the question to conversation_history
-            url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/{conversation_ID}:converse"
+          unique = sender_email + str(int(time.time()))
+          hash_object = hashlib.sha256(unique.encode('utf-8'))
+          sessionID = hash_object.hexdigest()
 
-            payload = json.dumps({
-              "query": {
-                "input": message_text
-              },
-              "summarySpec": {
-                "summaryResultCount": 5,
-                "ignoreAdversarialQuery": True,
-                "includeCitations": True
-              }
-            })
-            headers = {
-              # 'Authorization': 'Bearer ' + auth.main(),
-              'Authorization': 'Bearer ' + sa_token,
-              'Content-Type': 'application/json'
+          CARD_PAYLOAD['actions'][0]['data']['sessionID'] = sessionID
+          
+          #Add the question to conversation_history
+          url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/{conversation_ID}:converse"
+
+          payload = json.dumps({
+            "query": {
+              "input": message_text
+            },
+            "summarySpec": {
+              "summaryResultCount": 5,
+              "ignoreAdversarialQuery": True,
+              "includeCitations": True
             }
+          })
+          headers = {
+            # 'Authorization': 'Bearer ' + auth.main(),
+            'Authorization': 'Bearer ' + sa_token,
+            'Content-Type': 'application/json'
+        }
 
-            response = requests.request("POST", url, headers=headers, data=payload)
+          response = requests.request("POST", url, headers=headers, data=payload)
 
-            # Process the incoming message
-            response_json, format_response, genapp_answer, suggested_list, total_time = process_message(message_text)
+          # Process the incoming message
+          response_json, format_response, genapp_answer, suggested_list, total_time = process_message(message_text, room_id, data['data']['created'])
 
-            print(f"Total execution time: {total_time} seconds")
+          print(f"Total execution time: {total_time} seconds")
 
-            # upload_data_bq(message_text, format_response,  sender_email, sessionID, conversation_ID, request_source, total_time, data['data']['created']) # Upload question-answer data to bq with unique sessionID
+          # upload_data_bq(message_text, format_response,  sender_email, sessionID, conversation_ID, request_source, total_time, data['data']['created']) # Upload question-answer data to bq with unique sessionID
 
-            if  webhook_name == "astrosupport" :
-              send_message_space(room_id, message_id, response_json, format_response, genapp_answer, suggested_list)
-            else:
-              send_message(room_id, message_id, response_json, format_response, genapp_answer, suggested_list)
-
+          if  room_id == "Y2lzY29zcGFyazovL3VzL1JPT00vM2E0MmVjYTAtNzQwZi0xMWVlLWEzYWYtY2JmNzExMTExOGQ3" :
+            send_message(room_id, message_id, response_json, format_response, genapp_answer, suggested_list)
           else:
-              print("The input is from BMC Bot")
-
+            send_message_space(room_id, message_id, response_json, format_response, genapp_answer, suggested_list)
+        
         elif data['resource'] == "attachmentActions" and data['event'] == "created": # If incoming request is user's feedback -> a new attachmentAction (feedback) is created
-            # Process incoming feedback and upload to Bigquery using session ID
-            get_followup(message_id, room_id, data['data']['created'])
+          # Process incoming feedback and upload to Bigquery using session ID
+          response_json="Hello, world!"
+          
+          get_followup(message_text, room_id, data['data']['created'], response_json, genapp_answer, suggested_list)
       else:
         return "Authentication failed!"
 
@@ -971,7 +1005,7 @@ def handle_webhook():
       response = requests.request("POST", url, headers=headers, data=payload)
 
       
-      response_json, format_response, genapp_answer, suggested_list, total_time = process_message(question)
+      response_json, format_response, genapp_answer, suggested_list, total_time = process_message(question, room_id, tstamp)
       # upload_data_bq(question, format_response,  cdsid, sessionID, conversation_ID, request_source, total_time, tstamp) # Upload question-answer data to bq with unique sessionID
 
 
@@ -1003,5 +1037,6 @@ def handle_webhook():
 if __name__ == '__main__':
   PORT = 6000
   app.run(debug=True, host="0.0.0.0", port=PORT)
+
 
 
