@@ -1,0 +1,30 @@
+To create an image pull secret, you can follow these steps: 
+	1.	Login to the registry.ford.com and create a robot account in your organization.
+	2.	Create a file called credentials_config.json with the following contents:
+
+
+```
+{
+  "username": "YOUR_USERNAME",
+  "password": "YOUR_PASSWORD",
+  "email": "YOUR_EMAIL"
+}
+``` 
+	3.	Use the following yaml to create a secret in the tekton namespace:
+
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: image-pull
+data:
+  .dockerconfigjson: <base64-encoded contents of credentials_config.json>
+type: kubernetes.io/dockerconfigjson
+``` 
+	4.	Once the secret is created, you can use it to pull images from the registry.ford.com by using the following command:
+
+
+```
+docker pull registry.ford.com/<image-name>:<tag> --secret=image-pull
+```

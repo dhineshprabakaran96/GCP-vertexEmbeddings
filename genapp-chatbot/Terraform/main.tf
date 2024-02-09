@@ -2,7 +2,7 @@ module "cloud_run" {
   source                = "git@github.ford.com:gcp/tfm-cloud-run.git"
   gcp_project_id        = "ford-4360b648e7193d62719765c7" # The id of the project where the cloud run service is to be deployed"
   service_name          = "webex-bot-genapp"      # The name of the cloud run service"
-  service_image_url     = "us-central1-docker.pkg.dev/ford-4360b648e7193d62719765c7/ford-container-images/genapp-bot:60.0"
+  service_image_url     = "us-central1-docker.pkg.dev/ford-4360b648e7193d62719765c7/ford-container-images/genapp-bot:79.0"
   gcp_region            = "us-central1"
   service_account_email = "sa-chatgpt-run@ford-4360b648e7193d62719765c7.iam.gserviceaccount.com"                                                                     # This service account represents the identity of the service and determines what permissions the service has.
   service_invoker       = ["allUsers"]    
@@ -22,7 +22,7 @@ module "cloud_run" {
     },
     {
       name = "INTEGRATION_ACCESS_TOKEN"
-      value = "OGRkZTBjODUtN2U0NS00ZGY1LWEzZDItZTc4NjZkMjgwMjBlNjM1NzU0YTMtYzhm_PF84_af742d39-7515-46a3-82a7-03269e091b91"
+      value = "MjE1NmVjOWYtZTkxOC00YWQ2LWI5OTAtNWZiYWE0NmMxMjE4ZmY3ZDBmOTctNzlh_PF84_af742d39-7515-46a3-82a7-03269e091b91"
     },
     {
       name  = "ORG_ID" 

@@ -265,6 +265,53 @@ path = {                                                              # chatgpt_
                "Self-Help Design Review Guide":"https://www.eesewiki.ford.com/display/FEAPIS/Self-Help+Design+Review+Guide",
                "Style Guides":"https://www.eesewiki.ford.com/display/FEAPIS/Style+Guides",
 
+                                                                                #CICD_Docs
+               # "3.10 Release notes":"https://docs.cicd.ford.com/docs/devspaces/release/devspace-3.10/devspace-3.10/",
+               # "App Teams Roles and Responsibilities": "https://docs.cicd.ford.com/docs/devspaces/release/devspace-3.10/devspace-3.10/",
+               # "Beta features 1.12 ":,
+               # "Breaking changes":
+               # "Cloudbuild Cost Optimization":
+               # "Cloudbuild":
+               # "ClusterResolver"
+               # "Configuring Secrets"
+               # "Configuring Workspaces"
+               # "Cost optimization in Dev Spaces"
+               # "Creating a repository.CICD.pdf"
+               # "Debugging pipeline errors.CICD.pdf"
+               # "Depreciated and Removed Feature.pdf"
+               # "Documentation.CICD.pdf"
+               # "Eventlistener to trigger multiple.pl.pdf"
+               # "FADS Bulkmail Advisory Information.pdf"
+               # "FADS Catalog.CICD.pdf"
+               # "FAQ.CICD.pdf"
+               # "FAQs in CloudBuild.CICD.pdf"
+               # "Fixed Issues 1.12.CICD.pdf"
+               # "Flex template workaround.CICD.pdf"
+               # "General.CICD.pdf"
+               # "Get Clone Image Build & Push.CICD.pdf"
+               # "Git Clone and List Files.CICD.pdf"
+               # "Git Resolver.CICD.pdf"
+               # "HelloWorld Tutorial.CICD.pdf"
+               # "Hub Resolver.CICD.pdf"
+               # "Learning Resources.pdf"
+               # "Migrate Pipelines | CICD.pdf"
+               # "Migrate Tekton Tasks to Tekton Pipelines.pdf"
+               # "Migration from Gen1 to Gen2.Rep.pdf"
+               # "New features | CICD.pdf"
+               # "Quota Increase | CICD.pdf"
+               # "Ray | Openshift Dev Spaces.Ex..pdf"
+               # "Red Hat Openshift Dev Spaces.Ex..pdf"
+               # "Red Hat Openshift Dev Spaces.Ex..pdf"
+               # "Red Hat Openshift Dev Spaces.Ex..pdf"
+
+
+               
+
+
+
+
+
+
           }
 
 

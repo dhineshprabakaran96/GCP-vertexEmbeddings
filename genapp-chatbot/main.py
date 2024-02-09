@@ -1,5 +1,4 @@
 #Handle both webex and web requests
-
 import vertexai
 from vertexai.language_models import TextGenerationModel
 from google.cloud import bigquery
@@ -16,10 +15,14 @@ import hashlib
 import hmac
 import os
 import re
-import auth 
+import auth
 import time
 import datetime
 from datetime import datetime
+from langchain.prompts import ChatPromptTemplate
+from langchain.chains import LLMChain
+from langchain.chat_models import ChatVertexAI
+from langchain.chains import SimpleSequentialChain
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  
@@ -88,21 +91,23 @@ CARD_PAYLOAD = {
           "color": "Default"
         }
     ],
-     "actions": [
+    "actions": [
         {
             "type": "Action.Submit",
-            "title": "Ask Follow-Up ",
+            "title": "Submit Feedback",
             "data": {
+                "submit": "${feedback}",
                 "cardType": "input",
                 "id": "inputFeedback",
-                "sessionID": "",
-                "conversationID": ""
-            }
-        }
+                "sessionID": ""
+            },
+            "associatedInputs": "feedback"
+        },
     ],
    
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
     "version": "1.3"
+    
 }
 
 os.environ['no_proxy']='localhost,127.0.0.1,.ford.com,.local,.testing,.internal,.googleapis.com,19.0.0.0/8,136.1.0.0/16,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
@@ -213,12 +218,6 @@ def get_followup(message_id, room_id, tstamp):
 
   CARD_PAYLOAD['body'][1]['text'] = followup_response
 
-  # query = f"""INSERT INTO `{PROJECT_ID}.chatgpt.{feedback_bq_table}` (session_id, cdsid, conversation_id, query, response, response_timestamp)
-  # VALUES ('{session_ID}', '{cdsid}', '{cdsid}','{followup_question}', '{followup_response}', '{tstamp}')"""
-
-  # handle_proxies("UNSET")
-  # bigquery.Client(project = PROJECT_ID).query(query)
-
   # Set up the API request headers and payload
 
   headers = {
@@ -287,24 +286,79 @@ def get_followup_web(question, conversation_ID):
   
   total_time = end_time - start_time
 
-  # query = f"""INSERT INTO `{PROJECT_ID}.chatgpt.{astrobot_followup_web}` (session_id, cdsid, conversation_id, query, response, response_timestamp)
-  # VALUES ('{session_ID}', '{cdsid}', '{cdsid}','{followup_question}', '{followup_response}', '{tstamp}')"""
-
-  # handle_proxies("UNSET")
-  # bigquery.Client(project = PROJECT_ID).query(query)
-
   # Set up the API request headers and payload
 
   return followup_response, total_time
 
+def get_feedback(message_id, room_id):
+  GET_URL = "https://webexapis.com/v1/attachment/actions/" + message_id
 
+  headers = {
+      "Authorization": f"Bearer {BOT_ACCESS_TOKEN}"
+  }
+
+  handle_proxies("SET")
+  response = requests.get(GET_URL, headers=headers)
+
+  json_data = response.json()
+
+  # logging.info("feedback data")
+  # logging.info(json_data)
+
+  query = f"""UPDATE `{PROJECT_ID}.chatgpt.{feedback_bq_table}` 
+SET feedback='{json_data['inputs']['feedback']}'
+WHERE session_id='{json_data['inputs']['sessionID']}'"""
+
+  logging.info(query) ## <----
+
+  handle_proxies("UNSET")
+  bigquery.Client(project = PROJECT_ID).query(query)
+
+def get_feedback_space(message_id, room_id):
+  GET_URL = "https://webexapis.com/v1/attachment/actions/" + message_id
+
+  headers = {
+      "Authorization": f"Bearer {INTEGRATION_ACCESS_TOKEN}"
+  }
+
+  handle_proxies("SET")
+  response = requests.get(GET_URL, headers=headers)
+
+  json_data = response.json()
+
+  query = f"""UPDATE `{PROJECT_ID}.chatgpt.{feedback_bq_table}` 
+SET feedback='{json_data['inputs']['feedback']}'
+WHERE session_id='{json_data['inputs']['sessionID']}'"""
+
+  logging.info(query) ## <----
+
+  handle_proxies("UNSET")
+  bigquery.Client(project = PROJECT_ID).query(query)
+
+  # # Send thank you message after feedback is captured
+  # headers = {
+  #     "Authorization": f"Bearer {INTEGRATION_ACCESS_TOKEN}",
+  #     "Content-Type": "application/json"
+  # }
+  # payload = {
+  #     "roomId": room_id,
+  #     "text": "Your feedback has been captured. Thank you!"
+  # }
+
+  # # Send the message to the Webex Teams API
+  # handle_proxies("SET")
+  # response = requests.post(
+  #     "https://api.ciscospark.com/v1/messages",
+  #     headers=headers,
+  #     json=payload
+  # )
 
 def remove_unwanted_chars(prompt):
   string_without_unwanted_chars = prompt.replace(u'\u00A0', ' ').replace(u'\u200b', '').replace("'", "\'").replace('"', '\"')
 
   return string_without_unwanted_chars
   
-def construt_prompt(reply_str, question):
+def construct_prompt(reply_str, question):
 
     #If the output contains a list of steps, where each step is separated by a period and a space, format the text so that each step is on a new line. format the text so that each step is on a new line. format the text so that each step is on a new line. If the answer field contains any step by step process, format it in new line
   header = """Answer the query as truthfully as possible only using the provided context. The answer should be in JSON format which contains answer (the answer to user\'s query), id (ID of the point in the context from where the information was taken), and topic (topic from context).  If the answer is not contained within the text below, return answer as \'NA\' and \'id\' and \'topic\' as most relevant in context. Provide necessary links to the supporting documents (if present in the context). " 
@@ -363,26 +417,24 @@ def question_prompt(question):
 
   return header + context + examples + footer
 
-def upload_data_bq(question, answer, cdsid, sessionID, conversation_ID, request_source, exec_time, tstamp ):
+def upload_data_bq(question, format_response, response_json, cdsid, tstamp):
 
-  # # Create the unique session ID by hashing the CDSID and concatenating with the timestamp
-  # unique = cdsid + str(int(time.time()))
-  # hash_object = hashlib.sha256(unique.encode('utf-8'))
-  # sessionID = hash_object.hexdigest()
+  # Create the unique session ID by hashing the CDSID and concatenating with the timestamp
+  unique = cdsid + str(int(time.time()))
+  hash_object = hashlib.sha256(unique.encode('utf-8'))
+  sessionID = hash_object.hexdigest()
 
-  # CARD_PAYLOAD['actions'][0]['data']['sessionID'] = sessionID
-  # answer="Hello"
-  # sessionID="1234567890"
-  # question="How are you?"
-  # exec_time=3.000989
-  # tstamp="2023-10-27T11:10:46.788Z"
-  # conversation_ID="12345678765432"
-  # request_source="webex"
-  answer=str(answer)
-  answer = answer.replace('\n', '\\n') 
+  CARD_PAYLOAD['actions'][0]['data']['sessionID'] = sessionID
+  question=str(question)
+  question=question.replace('\n', '')
 
-  query = f"""INSERT INTO `{PROJECT_ID}.chatgpt.{feedback_bq_table}` (session_id, cdsid, query, response, response_time, response_timestamp, conversation_id, request_source)
-VALUES ('{sessionID}', '{cdsid}', '{question}', '{str(answer)}', '{round(exec_time,3)} seconds', '{tstamp}', '{conversation_ID}', '{request_source}')"""
+  
+  answer=str(format_response.candidates[0])
+  answer=answer.replace('\n', '')
+  print("Answer:" f'{answer}')
+   
+  query = f"""INSERT INTO `{PROJECT_ID}.chatgpt.{feedback_bq_table}` (cdsid, query, response, response_timestamp, session_id)
+VALUES ('{cdsid}', '{question}', '{answer}', '{tstamp}', '{sessionID}')"""
   
   print(query)
 
@@ -428,9 +480,6 @@ def process_message(question):
 
   genapp_response = data['reply']['reply'] #Gen_App response
 
-  # reply2 = [result["document"]["derivedStructData"]["extractive_answers"][0]["content"] for result in data["searchResults"]]   #Gen_App Extractive_Answers
-  # reply_str = "\n\n".join(reply2) + "\n\n" + reply1
-
   genapp_response = re.sub(r'\[[^\]]*\]|\([^)]*\)', '', genapp_response)
 
   ##Create variations of questions using LLM
@@ -467,16 +516,33 @@ def process_message(question):
         data = json.loads(response.text)
         genapp_reply = data['reply']['reply']
         genapp_reply = re.sub(r'\[[^\]]*\]|\([^)]*\)', '', genapp_reply)
-        # extractive_answer = [result["document"]["derivedStructData"]["extractive_answers"][0]["content"] for result in data["searchResults"]] 
-        # extractive_answer = genapp_reply + "\n\n".join(extractive_answer)
+
         results.append(genapp_reply)
 
   except (json.JSONDecodeError) as e:
     print("Error parsing JSON: {}".format(e))
     results = [genapp_response]
+  
+  context=str(results)
+  # prompt =  construct_prompt(str(results), question) ## 4. Construct prompt
+  # prompt = remove_unwanted_chars(prompt)
+  prompt=f"""Answer the query as truthfully as possible only using the provided context. If the answer is not contained within the text below, return answer as 'NA'. 
+  The answer should be in  a well-structured and readable block of text. 
+  Pay attention to formatting, such as using bullet points, numbered lists, or headers, to improve the overall readability of the text.
+    Context:-\n {context}
+   
+  examples:
+  input: What is Tensorflow?
+  output: 
 
-  prompt =  construt_prompt(str(results), question) ## 4. Construct prompt
-  prompt = remove_unwanted_chars(prompt)
+  input: What is the Apigee API Publisher and how does it work?
+  output: The Apigee API Publisher is a tool that allows API teams to deploy APIs to Apigee . It performs the following steps: 
+           1. Runs the provided Swagger/OpenAPI v3 API specification through the Ford API Linter and 42Crunch Audit scan 
+           2. Deploys an API proxy to the specified API gateway 
+           3. Uploads the provided Swagger/OpenAPI v3 API specification to the API Catalog .
+  input: {question}
+  output: 
+   """
 
   print("This is the prompt:" + prompt) ##
 
@@ -485,29 +551,23 @@ def process_message(question):
       **PARAMETERS
     )
 
-  llm_data={}
-  try:
-      llm_data = json.loads(llm_response.text)
-      print(llm_data['answer'])
-      res = llm_data
-  except (json.JSONDecodeError, Exception) as e:
-      if isinstance(e, json.JSONDecodeError):
-          print("Error parsing JSON: {}".format(e))
-          print("Please rephrase the question or handle the response accordingly")
-      else:
-          print("Error in prompt:", e)
-      res = {"answer": "NA", "id": "", "topic": ""}
+  # llm_data={}
+  # try:
+  #     llm_data = json.loads(llm_response.text)
+  #     print(llm_data['answer'])
+  #     res = llm_data
+  # except (json.JSONDecodeError, Exception) as e:
+  #     if isinstance(e, json.JSONDecodeError):
+  #         print("Error parsing JSON: {}".format(e))
+  #         print("Please rephrase the question or handle the response accordingly")
+  #     else:
+  #         print("Error in prompt:", e)
+  #     res = {"answer": "NA", "id": "", "topic": ""}
   
-  llm_answer=res['answer']
+  # llm_answer=res['answer']
 
-  if llm_answer != "NA":
-    format_prompt=f"""Only using the below text as context, Create a well-structured and readable block of below text that explains a concept or process using clear and concise language. Pay attention to formatting, such as using bullet points, numbered lists, or headers, to improve the overall readability of the text.
-    Context:-\n
-    {llm_data['answer']}
-    """
-
-    format_response=LLM_MODEL.predict(format_prompt, **PARAMETERS)
-
+  if llm_response.candidates[0] != "NA":
+    format_response=llm_response
   else:
     format_response = "I'm sorry, I'm not able to provide an answer at the moment. Could you please try rephrasing your question?"
 
@@ -524,7 +584,7 @@ def process_message(question):
   
   total_time = end_time - start_time
   
-  return res, format_response, genapp_response, searchResults[:3], total_time
+  return llm_response, format_response, genapp_response, searchResults[:3], total_time
 
 # Define a function to send messages to the Webex Teams API
 def send_message(room_id, message_id, response_json, format_response, genapp_answer, suggested_list):
@@ -558,8 +618,8 @@ def send_message(room_id, message_id, response_json, format_response, genapp_ans
             "actions": [
                 {
                     "type": "Action.OpenUrl",
-                    "title": "GCP Docs | Home",
-                    "url":"https://docs.gcp.ford.com/docs/" ## replace this URL for suggestion
+                    "title": "Astronomer Doc | Home",
+                    "url":"https://pages.github.ford.com/gcam/astronomer-docs/" ## replace this URL for suggestion
                 }
             ],
             "horizontalAlignment": "Left",
@@ -577,16 +637,38 @@ def send_message(room_id, message_id, response_json, format_response, genapp_ans
     # print(type(format_response))
   # print(str(format_response))
  
-  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json == "NA" else str(format_response.candidates[0])
     # CARD_PAYLOAD['body'][1]['text'] = response_json['answer']
     #Follow-Up
+
+  # CARD_PAYLOAD["body"].append({
+  #     "type": "Container"
+  # })
+  # CARD_PAYLOAD["body"].append({
+  #     "type": "TextBlock",
+  #     "text": "Got a follow-up question ?",
+  #     "horizontalAlignment": "Left",
+  #     "spacing": "Large",
+  #     "fontType": "Monospace",
+  #     "size": "Small",
+  #     "color": "Dark",
+  #     "isSubtle": True,
+  #     "separator": True
+  # })
+  
+  # CARD_PAYLOAD["body"].append({
+  #     "type": "Input.Text",
+  #     "id": "followup",
+  #     "placeholder": "Type your follow-up question"
+  # })
+ 
 
   CARD_PAYLOAD["body"].append({
       "type": "Container"
   })
   CARD_PAYLOAD["body"].append({
       "type": "TextBlock",
-      "text": "Got a follow-up question ?",
+      "text": "Did the response address your needs?",
       "horizontalAlignment": "Left",
       "spacing": "Large",
       "fontType": "Monospace",
@@ -595,14 +677,46 @@ def send_message(room_id, message_id, response_json, format_response, genapp_ans
       "isSubtle": True,
       "separator": True
   })
-  
   CARD_PAYLOAD["body"].append({
-      "type": "Input.Text",
-      "id": "followup",
-      "placeholder": "Type your follow-up question"
+      "type": "Input.ChoiceSet",
+      "id" : "feedback",
+      "choices": [
+          {
+              "title": "👍 Yes",
+              "value": "yes"
+          },
+          {
+              "title": "👎 No",
+              "value": "no"
+          },
+          # {
+          #     "title": "😑 Need Improvement",
+          #     "value": "improve"
+          # }
+      ],
+      "placeholder": "Feedback",
+      "style": "expanded"
   })
- 
-
+  # CARD_PAYLOAD["body"].append({
+  #     "type": "Input.Text",
+  #     "id": "feedbackComment",
+  #     "placeholder": "Type your Feedback"
+  # })
+  
+  CARD_PAYLOAD["body"].insert(7,{
+      "type": "Container"
+  })
+  CARD_PAYLOAD["body"].insert(8,{
+      "type": "TextBlock",
+      "text": "If you need more information, please post your queries in this thread and the team will be able to assist you.",
+      "horizontalAlignment": "Left",
+      "spacing": "Large",
+      "wrap": True,
+      "fontType": "Default",
+      "size": "Default",
+      "weight": "Bolder",
+      "color": "Accent"
+})
   # Set up the API request headers and payload
   headers = {
       "Authorization": f"Bearer {BOT_ACCESS_TOKEN}",
@@ -668,7 +782,7 @@ def send_message_space(room_id, message_id, response_json, format_response, gena
             "spacing": "Small"
         })
   
-  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+  CARD_PAYLOAD['body'][1]['text'] = format_response if response_json == "NA" else str(format_response.candidates[0])
   
   # CARD_PAYLOAD["body"].append({
   #     "type": "Container"
@@ -690,7 +804,60 @@ def send_message_space(room_id, message_id, response_json, format_response, gena
   #     "id": "followup",
   #     "placeholder": "Type your follow-up question"
   # })
- 
+  CARD_PAYLOAD["body"].append({
+      "type": "Container"
+  })
+  CARD_PAYLOAD["body"].append({
+      "type": "TextBlock",
+      "text": "Did the response address your needs?",
+      "horizontalAlignment": "Left",
+      "spacing": "Large",
+      "fontType": "Monospace",
+      "size": "Small",
+      "color": "Dark",
+      "isSubtle": True,
+      "separator": True
+  })
+  CARD_PAYLOAD["body"].append({
+      "type": "Input.ChoiceSet",
+      "id" : "feedback",
+      "choices": [
+          {
+              "title": "👍 Yes",
+              "value": "yes"
+          },
+          {
+              "title": "👎 No",
+              "value": "no"
+          },
+          # {
+          #     "title": "😑 Need Improvement",
+          #     "value": "improve"
+          # }
+      ],
+      "placeholder": "Feedback",
+      "style": "expanded"
+  })
+  # CARD_PAYLOAD["body"].append({
+  #     "type": "Input.Text",
+  #     "id": "feedbackComment",
+  #     "placeholder": "Type your Feedback"
+  # })
+
+  CARD_PAYLOAD["body"].insert(7,{
+      "type": "Container"
+  })
+  CARD_PAYLOAD["body"].insert(8,{
+      "type": "TextBlock",
+      "text": "If you need more information, please post your queries in this thread and the team will be able to assist you.",
+      "horizontalAlignment": "Left",
+      "spacing": "Large",
+      "wrap": True,
+      "fontType": "Default",
+      "size": "Default",
+      "weight": "Bolder",
+      "color": "Accent"
+})
 
   # Set up the API request headers and payload
   headers = {
@@ -720,7 +887,6 @@ def send_message_space(room_id, message_id, response_json, format_response, gena
   # Check if the request was successful
   if not response.ok:
       raise Exception("Failed to send message: {}".format(response.text))
-
   
 def send_message_web(question, response_json, format_response, suggested_list):
   # print(suggested_list)
@@ -731,8 +897,6 @@ def send_message_web(question, response_json, format_response, suggested_list):
 
   for item in suggested_list:
       title = item.split('/')[-1].replace('.pdf', '')
-      # name = title.split(' — ')[0].split(' | ')[0]
-      # name = title.split(' — ')[0].split(' | ')[0]
       name = title.split(' | ')[0].split(' — ')[0].split(' - ')[0]
       print(name)
       
@@ -745,15 +909,12 @@ def send_message_web(question, response_json, format_response, suggested_list):
 
   res = {
     "question": question,
-    "response" :  format_response if response_json['answer'] == "NA" else str(format_response.candidates[0])
+    "response" : format_response if response_json == "NA" else str(format_response.candidates[0])
 ,
     "links": list(links.values())   # Append the links to the res dictionary
   }
 
   return jsonify(res)
-
-
-
   
 def get_conversation_id(room_id):
   sa_token, expiry_time = auth.fed_token(Client_id, Secret)
@@ -784,8 +945,6 @@ def get_conversation_id(room_id):
       
       return conversation_id
       
-
-
 # ********** Validate Incoming Request **********
 def validate_request(raw, secret):
   
@@ -805,7 +964,6 @@ def validate_request(raw, secret):
 
   return True, "Authentication passed!"
 
-
 @app.route('/')
 def index():
   res = {
@@ -824,16 +982,17 @@ def handle_webhook():
 
   sender_email=""
   cdsid=""
-  webhook_name=data['name']
+  # webhook_name=data['name']
 
   if 'orgId' in data:
+    webhook_name=data['name']
     room_id = data['data']['roomId']
     print("The request is from Webex")
     if 'parentId' not in data['data'].keys():
 
       validation, validation_msg = validate_request(request.get_data(), request.headers.get('X-Spark-Signature'))
 
-      if validation == True : ##<----   *****
+      if validation!= True : ##<----   *****
         request_source="web"
         data = json.loads(request.data)
         # print("Question:" + data['data']['text'])
@@ -848,25 +1007,22 @@ def handle_webhook():
 
         CARD_PAYLOAD['actions'][0]['data']['conversationID'] = conversation_ID
 
-        
-
         if data['resource'] == "messages" and data['event'] == "created":
 
           sa_token, expiry_time = auth.fed_token(Client_id, Secret)
 
           # Process incoming request
           message_text = ""
-          if  room_id == "Y2lzY29zcGFyazovL3VzL1JPT00vM2E0MmVjYTAtNzQwZi0xMWVlLWEzYWYtY2JmNzExMTExOGQ3" :
-            if 'text' in data['data'].keys():
-              message_text = data['data']['text']
-            else:
-              message_text = get_message(message_id)
-          else:
+          if  webhook_name == "astrosupport" :
             if 'text' in data['data'].keys():
               message_text = data['data']['text']
             else:
               message_text = get_message_space(message_id)
-
+          else:
+            if 'text' in data['data'].keys():
+              message_text = data['data']['text']
+            else:
+              message_text = get_message(message_id)
 
           sender_email = ""
           if 'personEmail' in data['data'].keys():
@@ -878,11 +1034,11 @@ def handle_webhook():
           
           cdsid=sender_email
           if sender_email !="chatBlueFord@webex.bot" :
-            unique = sender_email + str(int(time.time()))
-            hash_object = hashlib.sha256(unique.encode('utf-8'))
-            sessionID = hash_object.hexdigest()
+            # unique = sender_email + str(int(time.time()))
+            # hash_object = hashlib.sha256(unique.encode('utf-8'))
+            # sessionID = hash_object.hexdigest()
 
-            CARD_PAYLOAD['actions'][0]['data']['sessionID'] = sessionID
+            # CARD_PAYLOAD['actions'][0]['data']['sessionID'] = sessionID
             
             #Add the question to conversation_history
             url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/{conversation_ID}:converse"
@@ -910,7 +1066,7 @@ def handle_webhook():
 
             print(f"Total execution time: {total_time} seconds")
 
-            # upload_data_bq(message_text, format_response,  sender_email, sessionID, conversation_ID, request_source, total_time, data['data']['created']) # Upload question-answer data to bq with unique sessionID
+            upload_data_bq(message_text, format_response,response_json, sender_email, data['data']['created']) # Upload question-answer data to bq with unique sessionID
 
             if  webhook_name == "astrosupport" :
               send_message_space(room_id, message_id, response_json, format_response, genapp_answer, suggested_list)
@@ -922,7 +1078,13 @@ def handle_webhook():
 
         elif data['resource'] == "attachmentActions" and data['event'] == "created": # If incoming request is user's feedback -> a new attachmentAction (feedback) is created
             # Process incoming feedback and upload to Bigquery using session ID
-            get_followup(message_id, room_id, data['data']['created'])
+            # get_followup(message_id, room_id, data['data']['created'])
+            if  webhook_name == "astrosupport_feedback" :
+             get_feedback_space(message_id, room_id)
+            else:
+              get_feedback(message_id, room_id)
+
+            
       else:
         return "Authentication failed!"
 
