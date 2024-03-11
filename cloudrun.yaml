@@ -1,0 +1,89 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: cmsa-chatbot-2
+  namespace: '655678175973'
+  selfLink: /apis/serving.knative.dev/v1/namespaces/655678175973/services/cmsa-chatbot-2
+  uid: bb3f67b8-c93a-45d6-a71a-e317cbe0605c
+  resourceVersion: AAYTDuy+RvQ
+  generation: 33
+  creationTimestamp: '2024-03-05T08:51:27.052811Z'
+  labels:
+    cloud.googleapis.com/location: us-central1
+  annotations:
+    serving.knative.dev/creator: dprabak7@ford.com
+    serving.knative.dev/lastModifier: dprabak7@ford.com
+    run.googleapis.com/operation-id: 98dc1275-6cc8-4e7e-8420-4986df60f8e4
+    run.googleapis.com/ingress: internal
+    run.googleapis.com/ingress-status: internal
+spec:
+  template:
+    metadata:
+      labels:
+        run.googleapis.com/startupProbeType: Default
+      annotations:
+        run.googleapis.com/sessionAffinity: 'false'
+        autoscaling.knative.dev/minScale: '1'
+        run.googleapis.com/vpc-access-egress: all-traffic
+        run.googleapis.com/cloudsql-instances: ''
+        run.googleapis.com/execution-environment: gen1
+        autoscaling.knative.dev/maxScale: '100'
+        run.googleapis.com/vpc-access-connector: projects/prj-pp-gen-preprod-net-acc7/locations/us-central1/connectors/preprod-gen-central1
+        run.googleapis.com/cpu-throttling: 'true'
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 3599
+      serviceAccountName: sa-chatgpt-run@ford-4360b648e7193d62719765c7.iam.gserviceaccount.com
+      containers:
+      - image: us-central1-docker.pkg.dev/ford-4360b648e7193d62719765c7/ford-container-images/cmsa-chatbot-chroma:12.0
+        ports:
+        - name: http1
+          containerPort: 8080
+        env:
+        - name: TERCES
+          value: ZwTAbP4ZYPT-Zka_GexjILroY5hC-zuioCmliITw
+        - name: webhook_secret
+          value: QwsxErfvTyhnUik
+        - name: ORG_ID
+          value: Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi9hZjc0MmQzOS03NTE1LTQ2YTMtODJhNy0wMzI2OWUwOTFiOTE
+        - name: index_ip
+        - name: project_id
+          value: ford-4360b648e7193d62719765c7
+        - name: CLIENT_ID
+          value: b226389c-1320-3a29-c66b-aac5d043e18e
+        - name: BOT_ACCESS_TOKEN
+          value: NjljNGJhMGItYzk3MC00OGQ5LWEzNTAtNjk0NTJjNWNlMTA0NDEzYzIzMTUtZTYw_PF84_af742d39-7515-46a3-82a7-03269e091b91
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 4000M
+        startupProbe:
+          timeoutSeconds: 240
+          periodSeconds: 240
+          failureThreshold: 1
+          tcpSocket:
+            port: 8080
+  traffic:
+  - percent: 100
+    latestRevision: true
+status:
+  observedGeneration: 33
+  conditions:
+  - type: Ready
+    status: 'True'
+    lastTransitionTime: '2024-03-07T09:44:42.626804Z'
+  - type: ConfigurationsReady
+    status: 'True'
+    lastTransitionTime: '2024-03-05T08:51:27.280481Z'
+  - type: RoutesReady
+    status: 'True'
+    lastTransitionTime: '2024-03-07T09:44:42.582144Z'
+  latestReadyRevisionName: cmsa-chatbot-2-00033-l7r
+  latestCreatedRevisionName: cmsa-chatbot-2-00033-l7r
+  traffic:
+  - revisionName: cmsa-chatbot-2-00033-l7r
+    percent: 100
+    latestRevision: true
+  url: https://cmsa-chatbot-2-py5qtjsqtq-uc.a.run.app
+  address:
+    url: https://cmsa-chatbot-2-py5qtjsqtq-uc.a.run.app
