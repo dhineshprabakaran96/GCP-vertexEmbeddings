@@ -774,8 +774,8 @@ def send_message_space(room_id, message_id, response_json, format_response, gena
             "actions": [
                 {
                     "type": "Action.OpenUrl",
-                    "title": "GCP Docs | Home",
-                    "url":"https://docs.gcp.ford.com/docs/" ## replace this URL for suggestion
+                    "title": "Astronomer Doc | Home",
+                    "url":"https://pages.github.ford.com/gcam/astronomer-docs/" ## replace this URL for suggestion
                 }
             ],
             "horizontalAlignment": "Left",
@@ -904,7 +904,7 @@ def send_message_web(question, response_json, format_response, suggested_list):
           links[name] = f"<a href='{path[name]}' target='_blank'>{name}</a>"
  # Use the title as the key and the URL as the value
       else:
-          links[name] = "https://docs.gcp.ford.com/docs/" 
+          links[name] = "https://pages.github.ford.com/gcam/astronomer-docs/" 
       # print(links[title])
 
   res = {
@@ -992,7 +992,7 @@ def handle_webhook():
 
       validation, validation_msg = validate_request(request.get_data(), request.headers.get('X-Spark-Signature'))
 
-      if validation!= True : ##<----   *****
+      if validation== True : ##<----   *****
         request_source="web"
         data = json.loads(request.data)
         # print("Question:" + data['data']['text'])
@@ -1151,9 +1151,7 @@ def handle_webhook():
 
       # upload_data_bq(question, format_response,  cdsid, sessionID, conversation_ID, request_source, total_time, tstamp) # Upload question-answer data to bq with unique sessionID
 
-
-      response_json={"answer":""}
-      response_json['answer']="NA"
+      response_json="NA"
       suggested_list=""
       return send_message_web(question, response_json, followup_response, suggested_list)
    

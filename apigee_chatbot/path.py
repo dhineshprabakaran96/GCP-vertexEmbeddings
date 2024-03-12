@@ -1,46 +1,5 @@
-path = {                                                              # chatgpt_data_source/astrobot
-               "Airflow Version Update":"https://github.ford.com/cmsa/Astronomer/wiki/Airflow-Version-Update", 
-               "Astro_Faq's":"https://github.ford.com/cmsa/Astronomer/wiki/Astro_Faq's",
-               "Astro Top 30 FAQs":"https://github.ford.com/cmsa/Astronomer/wiki/Astro-Top-30-FAQs",
-               "Astronomer Best Practices Suggested by Astronomer Support": "https://github.ford.com/cmsa/Astronomer/wiki/Astronomer-Best-Practices----Suggested-by-Astronomer-Support",
-               "Astronomer CI Pipeline Issues and Troubleshooting": "https://github.ford.com/cmsa/Astronomer/wiki/Astronomer-CI-Pipeline-Issues-and-Troubleshooting", 
-               "Astronomer Local Dev Setup":"https://github.ford.com/cmsa/Astronomer/wiki/Astronomer-Local-Dev-Setup",
-               "Astronomer Platform Architecture": "https://github.ford.com/cmsa/Astronomer/wiki/Astronomer--Platform-Architecture",
-               "Astronomer Proxy IDs": "https://github.ford.com/cmsa/Astronomer/wiki/Astronomer-Proxy-IDs",
-               "Astronomer Service links with purpose":"https://github.ford.com/cmsa/Astronomer/wiki/Astronomer-Service-links-with-purpose",
-               "Astronomer Webex Groups": "https://github.ford.com/cmsa/Astronomer/wiki/Astronomer-Webex-Groups",
-               "CMSA_Astronomer_APIGEE API Details":"https://github.ford.com/cmsa/Astronomer/wiki/CMSA_Astronomer_APIGEE-API-Details",
-               "Clearing the stuck clean up jobs": "https://github.ford.com/cmsa/Astronomer/wiki/Clearing-the-stuck-clean-up-jobs",
-               "Cronjobs": "https://github.ford.com/cmsa/Astronomer/wiki/Cronjobs",
-               "FIM Groups for Astronomer": "https://github.ford.com/cmsa/Astronomer/wiki/FIM-Groups-for-Astronomer",
-               "GCP MQL Query Commands for GKE Clusters": "https://github.ford.com/cmsa/Astronomer/wiki/GCP-MQL-Query-Commands-for-GKE-Clusters",
+path = {                                                          
                
-                                                                    # chatgpt_data_source/Astrodoc
-               "Airflow API": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/Airflow-API",
-               "Airflow Notifications & Alerting": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/airflow-alerting", 
-               "Airflow Packages": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/airflow-image-packages-install", 
-               "Astro GCP Connections": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/astro-gcp-connections/",
-               "Astro Logging Pubsub Preprod": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/astro-logging-pubsub/preprod/Readm", 
-               "Astro Logging Pubsub Prod": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/astro-logging-pubsub/prod/Readme/", 
-               "Astro Runtime Customer Doc": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/astro-runtime-customer-doc/Readme", 
-               "Astronomer Contact": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/Astronomer-contact/" , 
-               "Astronomer FAQs": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/Astronomer-FAQs/", 
-               "Astronomer IT Connect": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/Astronomer-IT_connect/", 
-               "Astronomer RBAC": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/Astronomer%20RBAC", 
-               "Astro Docs Training query": "https://pages.github.ford.com/gcam/astronomer-docs/",
-               "Email Relay":"https://pages.github.ford.com/gcam/astronomer-docs/astronomer/email-relay",
-               "External Secrets Backend": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/astro_external_secrets_backend",
-               "Exception Based Services": "https://docs.gcp.ford.com/docs/onboard/exception-based-services",
-               "Home": "https://pages.github.ford.com/gcam/astronomer-docs/", 
-               "Local Dev Setup": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/astro-localdev",
-               "Sample Dag and Variables Connections": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/astro-variables-connections", 
-               "Starting with Airflow":"https://pages.github.ford.com/gcam/astronomer-docs/airflow-getting-started/",
-               "Starting with Astronomer": "https://pages.github.ford.com/gcam/astronomer-docs/astronomer/astro-onboarding" , 
-               "Tekton CI Tasks":"https://pages.github.ford.com/gcam/astronomer-docs/astronomer/astro-ci-doc",
-
-                                                                 # chatgpt_data_source/gcp_docs
-               "2.0 Migration Overview": "https://docs.gcp.ford.com/docs/support/migration/migration/",
-               "2.0 Migration": "https://docs.gcp.ford.com/docs/support/migration/",
 
                "ADFS Workload Identity Federation (WIF) Guide": "https://docs.gcp.ford.com/docs/support/authentication/adfs-wif-guide/",
                "AlloyDB for PostgreSQL (alloydb)": "https://docs.gcp.ford.com/docs/services/database/alloydb/",
@@ -265,48 +224,10 @@ path = {                                                              # chatgpt_
                "Self-Help Design Review Guide":"https://www.eesewiki.ford.com/display/FEAPIS/Self-Help+Design+Review+Guide",
                "Style Guides":"https://www.eesewiki.ford.com/display/FEAPIS/Style+Guides",
 
-                                                                                #CICD_Docs
-               # "3.10 Release notes":"https://docs.cicd.ford.com/docs/devspaces/release/devspace-3.10/devspace-3.10/",
-               # "App Teams Roles and Responsibilities": "https://docs.cicd.ford.com/docs/devspaces/release/devspace-3.10/devspace-3.10/",
-               # "Beta features 1.12 ":,
-               # "Breaking changes":
-               # "Cloudbuild Cost Optimization":
-               # "Cloudbuild":
-               # "ClusterResolver"
-               # "Configuring Secrets"
-               # "Configuring Workspaces"
-               # "Cost optimization in Dev Spaces"
-               # "Creating a repository.CICD.pdf"
-               # "Debugging pipeline errors.CICD.pdf"
-               # "Depreciated and Removed Feature.pdf"
-               # "Documentation.CICD.pdf"
-               # "Eventlistener to trigger multiple.pl.pdf"
-               # "FADS Bulkmail Advisory Information.pdf"
-               # "FADS Catalog.CICD.pdf"
-               # "FAQ.CICD.pdf"
-               # "FAQs in CloudBuild.CICD.pdf"
-               # "Fixed Issues 1.12.CICD.pdf"
-               # "Flex template workaround.CICD.pdf"
-               # "General.CICD.pdf"
-               # "Get Clone Image Build & Push.CICD.pdf"
-               # "Git Clone and List Files.CICD.pdf"
-               # "Git Resolver.CICD.pdf"
-               # "HelloWorld Tutorial.CICD.pdf"
-               # "Hub Resolver.CICD.pdf"
-               # "Learning Resources.pdf"
-               # "Migrate Pipelines | CICD.pdf"
-               # "Migrate Tekton Tasks to Tekton Pipelines.pdf"
-               # "Migration from Gen1 to Gen2.Rep.pdf"
-               # "New features | CICD.pdf"
-               # "Quota Increase | CICD.pdf"
-               # "Ray | Openshift Dev Spaces.Ex..pdf"
-               # "Red Hat Openshift Dev Spaces.Ex..pdf"
-               # "Red Hat Openshift Dev Spaces.Ex..pdf"
-               # "Red Hat Openshift Dev Spaces.Ex..pdf"
-
 
                
 
+              
 
 
 

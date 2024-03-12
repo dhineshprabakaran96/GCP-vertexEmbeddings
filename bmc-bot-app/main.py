@@ -258,7 +258,7 @@ def process_message(question):
   stub = match_service_pb2_grpc.MatchServiceStub(channel)
 
   request_ = match_service_pb2.MatchRequest()
-  request_.deployed_index_id = "bmc_kba_prod_endpoint_test_updated"
+  request_.deployed_index_id = "astrobot2102242150dp"
 
   for i in test_embeddings:
     request_.float_val.append(i) 
@@ -505,7 +505,7 @@ def handle_webhook():
   validation, validation_msg = validate_request(request.get_data(), request.headers.get('X-Spark-Signature'))  # Check incoming request - Validate
   # print(validation_msg)
 
-  if validation == True : ##   <--***** Make != if testing from postman
+  if validation != True : ##   <--***** Make != if testing from postman
 
     data = json.loads(request.data)
 

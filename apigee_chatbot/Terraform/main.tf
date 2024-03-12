@@ -2,7 +2,7 @@ module "cloud_run" {
   source                = "git@github.ford.com:gcp/tfm-cloud-run.git"
   gcp_project_id        = "ford-4360b648e7193d62719765c7" # The id of the project where the cloud run service is to be deployed"
   service_name          = "apigee-chatbot"      # The name of the cloud run service"
-  service_image_url     = "us-central1-docker.pkg.dev/ford-4360b648e7193d62719765c7/ford-container-images/genapp-bot:79.0"
+  service_image_url     = "us-central1-docker.pkg.dev/ford-4360b648e7193d62719765c7/ford-container-images/apigee-chatbot:5.0"
   gcp_region            = "us-central1"
   service_account_email = "sa-chatgpt-run@ford-4360b648e7193d62719765c7.iam.gserviceaccount.com"                                                                     # This service account represents the identity of the service and determines what permissions the service has.
   service_invoker       = ["allUsers"]    
@@ -18,7 +18,7 @@ module "cloud_run" {
     
     {
       name  = "BOT_ACCESS_TOKEN" 
-      value = "MGEyNjY3ZjEtNjJkOS00NTA0LWIxYTQtMjE3OThmZTc5MTcxZjk4OGQ1NTgtNmU0_PF84_af742d39-7515-46a3-82a7-03269e091b91"
+      value = "YWEyZTQ4NDMtYTMwMS00NzRjLTgwZDYtYjVjNGRkNGEyYjQ4OTY5N2NhYjYtYzEz_PF84_af742d39-7515-46a3-82a7-03269e091b91"
     },
     {
       name = "INTEGRATION_ACCESS_TOKEN"

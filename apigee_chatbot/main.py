@@ -19,10 +19,10 @@ import auth
 import time
 import datetime
 from datetime import datetime
-from langchain.prompts import ChatPromptTemplate
-from langchain.chains import LLMChain
-from langchain.chat_models import ChatVertexAI
-from langchain.chains import SimpleSequentialChain
+# from langchain.prompts import ChatPromptTemplate
+# from langchain.chains import LLMChain
+# from langchain.chat_models import ChatVertexAI
+# from langchain.chains import SimpleSequentialChain
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  
@@ -37,7 +37,7 @@ conversation_ids = {}
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 BOT_ACCESS_TOKEN = os.environ["BOT_ACCESS_TOKEN"]
-bot_email = "bmc-genapp@webex.bot"
+bot_email = "apigee@webex.bot"
 
 INTEGRATION_ACCESS_TOKEN=os.environ["INTEGRATION_ACCESS_TOKEN"]
 
@@ -59,7 +59,7 @@ CARD_PAYLOAD = {
     "body": [
         {
             "type": "TextBlock",
-            "text": "Astrobot",
+            "text": "Apigee Chatbot",
             "horizontalAlignment": "Left",
             "wrap": True,
             "fontType": "Default",
@@ -193,6 +193,7 @@ def get_followup(message_id, room_id, tstamp):
 #get_followup response from GenAPp
   # url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/{conversation_ID}:converse"
   url=f"https://discoveryengine.googleapis.com/v1alpha/projects/655678175973/locations/global/collections/default_collection/dataStores/apigee_1705998416929/conversations/{conversation_ID}:converse"
+
 
 
   payload = json.dumps({
@@ -365,7 +366,7 @@ def remove_unwanted_chars(prompt):
 def construct_prompt(reply_str, question):
 
     #If the output contains a list of steps, where each step is separated by a period and a space, format the text so that each step is on a new line. format the text so that each step is on a new line. format the text so that each step is on a new line. If the answer field contains any step by step process, format it in new line
-  header = """Answer the query as truthfully as possible only using the provided context. The answer should be in JSON format which contains answer (the answer to user\'s query), id (ID of the point in the context from where the information was taken), and topic (topic from context).  If the answer is not contained within the text below, return answer as \'NA\' and \'id\' and \'topic\' as most relevant in context. Provide necessary links to the supporting documents (if present in the context). " 
+  header = """You're a Tekton Customer Support Chatbot. Answer the query as truthfully as possible only using the provided context. The answer should be in JSON format which contains answer (the answer to user\'s query), id (ID of the point in the context from where the information was taken), and topic (topic from context).  If the answer is not contained within the text below, return answer as \'NA\' and \'id\' and \'topic\' as most relevant in context. Provide necessary links to the supporting documents (if present in the context). " 
 
   Context:-\n
   """
@@ -557,12 +558,31 @@ def process_message(question):
       **PARAMETERS
     )
 
+  # llm_data={}
+  # try:
+  #     llm_data = json.loads(llm_response.text)
+  #     print(llm_data['answer'])
+  #     res = llm_data
+  # except (json.JSONDecodeError, Exception) as e:
+  #     if isinstance(e, json.JSONDecodeError):
+  #         print("Error parsing JSON: {}".format(e))
+  #         print("Please rephrase the question or handle the response accordingly")
+  #     else:
+  #         print("Error in prompt:", e)
+  #     res = {"answer": "NA", "id": "", "topic": ""}
+  
+  # llm_answer=res['answer']
 
   if llm_response.candidates[0] != "NA":
     format_response=llm_response
   else:
     format_response = "I'm sorry, I'm not able to provide an answer at the moment. Could you please try rephrasing your question?"
 
+
+  # print(format_prompt)
+  # print(format_response)
+
+  # print(reply[0])
   searchResults = []
   for item in data['searchResults']:
     searchResults.append(item['document']['derivedStructData']['link'])
@@ -605,8 +625,8 @@ def send_message(room_id, message_id, response_json, format_response, genapp_ans
             "actions": [
                 {
                     "type": "Action.OpenUrl",
-                    "title": "Astronomer Doc | Home",
-                    "url":"https://pages.github.ford.com/gcam/astronomer-docs/" ## replace this URL for suggestion
+                    "title": "Apigee Docs | Home",
+                    "url":"https://cloud.google.com/apigee/docs" ## replace this URL for suggestion
                 }
             ],
             "horizontalAlignment": "Left",
@@ -614,8 +634,8 @@ def send_message(room_id, message_id, response_json, format_response, genapp_ans
         })
   
   
- 
   CARD_PAYLOAD['body'][1]['text'] = format_response if response_json == "NA" else str(format_response.candidates[0])
+   
 
   CARD_PAYLOAD["body"].append({
       "type": "Container"
@@ -651,6 +671,7 @@ def send_message(room_id, message_id, response_json, format_response, genapp_ans
       "placeholder": "Feedback",
       "style": "expanded"
   })
+  
   
   CARD_PAYLOAD["body"].insert(7,{
       "type": "Container"
@@ -733,6 +754,26 @@ def send_message_space(room_id, message_id, response_json, format_response, gena
   
   CARD_PAYLOAD['body'][1]['text'] = format_response if response_json == "NA" else str(format_response.candidates[0])
   
+  # CARD_PAYLOAD["body"].append({
+  #     "type": "Container"
+  # })
+  # CARD_PAYLOAD["body"].append({
+  #     "type": "TextBlock",
+  #     "text": "Got a follow-up question ?",
+  #     "horizontalAlignment": "Left",
+  #     "spacing": "Large",
+  #     "fontType": "Monospace",
+  #     "size": "Small",
+  #     "color": "Dark",
+  #     "isSubtle": True,
+  #     "separator": True
+  # })
+  
+  # CARD_PAYLOAD["body"].append({
+  #     "type": "Input.Text",
+  #     "id": "followup",
+  #     "placeholder": "Type your follow-up question"
+  # })
   CARD_PAYLOAD["body"].append({
       "type": "Container"
   })
@@ -767,6 +808,11 @@ def send_message_space(room_id, message_id, response_json, format_response, gena
       "placeholder": "Feedback",
       "style": "expanded"
   })
+  # CARD_PAYLOAD["body"].append({
+  #     "type": "Input.Text",
+  #     "id": "feedbackComment",
+  #     "placeholder": "Type your Feedback"
+  # })
 
   CARD_PAYLOAD["body"].insert(7,{
       "type": "Container"
@@ -848,8 +894,7 @@ def get_conversation_id(room_id):
   else:
       # Create Conversation history
       # url="https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations"
-      url=f"https://discoveryengine.googleapis.com/v1alpha/projects/655678175973/locations/global/collections/default_collection/dataStores/apigee_1705998416929/conversations"
-
+      url="https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations"
 
       payload = json.dumps({
           "user_pseudo_id": room_id
@@ -901,7 +946,8 @@ def index():
 def handle_webhook():
   
   data = json.loads(request.data)  
-  
+  # json_data = json.dumps(data)
+  # logging.info(json_data)
   print(data)
 
 
@@ -938,7 +984,7 @@ def handle_webhook():
 
           # Process incoming request
           message_text = ""
-          if  webhook_name == "apigeesupport" :
+          if  webhook_name == "astrosupport" :
             if 'text' in data['data'].keys():
               message_text = data['data']['text']
             else:
@@ -958,11 +1004,16 @@ def handle_webhook():
               return "OK"
           
           cdsid=sender_email
-          if sender_email !="apigee@webex.bot" :
+          if sender_email !="chatBlueFord@webex.bot" :
+            # unique = sender_email + str(int(time.time()))
+            # hash_object = hashlib.sha256(unique.encode('utf-8'))
+            # sessionID = hash_object.hexdigest()
+
+            # CARD_PAYLOAD['actions'][0]['data']['sessionID'] = sessionID
             
             #Add the question to conversation_history
             # url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/{conversation_ID}:converse"
-            url=f"https://discoveryengine.googleapis.com/v1alpha/projects/655678175973/locations/global/collections/default_collection/dataStores/apigee_1705998416929/conversations/{conversation_ID}:converse"
+            url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/apigee_1705998416929/conversations/{conversation_ID}:converse"
 
 
             payload = json.dumps({
@@ -1035,8 +1086,7 @@ def handle_webhook():
 
       #Add the question to conversation_history
       # url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/astrobot_1697723843614/conversations/{conversation_ID}:converse"
-      url=f"https://discoveryengine.googleapis.com/v1alpha/projects/655678175973/locations/global/collections/default_collection/dataStores/apigee_1705998416929/conversations/{conversation_ID}:converse"
-
+      url = f"https://discoveryengine.googleapis.com/v1/projects/ford-4360b648e7193d62719765c7/locations/global/collections/default_collection/dataStores/apigee_1705998416929/conversations/{conversation_ID}:converse"
 
       payload = json.dumps({
         "query": {
